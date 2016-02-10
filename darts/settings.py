@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 
 # Scrapy settings for darts project
 #
@@ -14,14 +15,7 @@ BOT_NAME = 'darts'
 SPIDER_MODULES = ['darts.spiders']
 NEWSPIDER_MODULE = 'darts.spiders'
 
-DATABASE_SETTINGS = dict(
-    drivername='postgresql',
-    host='localhost',
-    port=5432,
-    username='darts',
-    password='darts',
-    database='darts',
-)
+DATABASE_URL = 'postgresql://darts:darts@localhost/darts'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'darts (+http://www.yourdomain.com)'

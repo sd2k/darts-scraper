@@ -13,14 +13,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.engine.url import URL
 
 from darts import settings
 
 
-url = URL(**settings.DATABASE_SETTINGS)
-
-engine = create_engine(url)
+engine = create_engine(settings.DATABASE_URL)
 
 Base = declarative_base()
 
