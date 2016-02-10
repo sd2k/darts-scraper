@@ -5,6 +5,7 @@ from sqlalchemy import (
     select,
     Column,
     Date,
+    DateTime,
     Float,
     ForeignKey,
     Integer,
@@ -13,6 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
 
 from darts import settings
 
@@ -28,6 +30,7 @@ class Tournament(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    last_updated = Column(DateTime, default=func.now())
 
     events = relationship('Event', back_populates='tournaments')
 
@@ -58,6 +61,7 @@ class Event(Base):
     venue = Column(Integer, nullable=True)
     tv_coverage = Column(String, nullable=True)
     sponsor = Column(String, nullable=True)
+    last_updated = Column(DateTime, default=func.now())
 
     tournaments = relationship('Tournament', back_populates='events')
     matches = relationship('Match', back_populates='events')
@@ -77,6 +81,7 @@ class Player(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     dob = Column(Date)
+    last_updated = Column(DateTime, default=func.now())
 
     pdc_ranking = Column(Integer, nullable=True)
     red_dragon_ranking = Column(Integer, nullable=True)
@@ -106,6 +111,7 @@ class Match(Base):
     id = Column(Integer, primary_key=True)
     date = Column(Date)
     event_id = Column(Integer, ForeignKey('events.id'))
+    last_updated = Column(DateTime, default=func.now())
 
     events = relationship('Event', back_populates='matches')
 
@@ -136,6 +142,7 @@ class MatchResult(Base):
     high_checkout = Column(Integer)
     checkout_percent = Column(Float)
     checkout_chances = Column(Integer)
+    last_updated = Column(DateTime, default=func.now())
 
     player = relationship('Player', back_populates='match_results')
     match = relationship('Match', back_populates='match_results')
