@@ -3,6 +3,23 @@
 from scrapy import Item, Field
 
 
+class Tournament(Item):
+
+    id = Field()
+    name = Field()
+
+
+class Event(Item):
+
+    id = Field()
+    tournament_id = Field()
+    name = Field()
+    year = Field()
+    venue = Field()
+    tv_coverage = Field()
+    sponsor = Field()
+
+
 class Player(Item):
 
     id = Field()
@@ -18,18 +35,20 @@ class Player(Item):
     career_9_darters = Field()
 
 
-class Tournament(Item):
+class Match(Item):
 
     id = Field()
-    name = Field()
+    date = Field()
+    event_id = Field()
 
 
-class Event(Item):
+class MatchResult(Item):
 
-    id = Field()
-    tournament_id = Field()
-    year = Field()
-    venue = Field()
-    tv_coverage = Field()
-    sponsor = Field()
-
+    player_name = Field()
+    match_id = Field()
+    score = Field()
+    average = Field()
+    oneeighties = Field()
+    high_checkout = Field()
+    checkout_percent = Field()
+    checkout_chances = Field()
