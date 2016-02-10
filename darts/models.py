@@ -22,36 +22,6 @@ engine = create_engine(settings.DATABASE_URL)
 Base = declarative_base()
 
 
-class Player(Base):
-
-    __tablename__ = 'players'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    dob = Column(Date)
-
-    pdc_ranking = Column(Integer, nullable=True)
-    red_dragon_ranking = Column(Integer, nullable=True)
-    ddb_ranking = Column(Integer, nullable=True)
-    ddb_popularity = Column(Integer, nullable=True)
-
-    career_earnings = Column(Float, nullable=True)
-    career_9_darters = Column(Integer, nullable=True)
-
-    matches = relationship(
-        'Match',
-        secondary='match_players',
-        back_populates='players'
-    )
-
-    def __repr__(self):
-        return "<Player(id='%s', name='%s', pdc_ranking='%s')>" % (
-            self.id,
-            self.name,
-            self.pdc_ranking
-        )
-
-
 class Tournament(Base):
 
     __tablename__ = 'tournaments'
@@ -100,6 +70,35 @@ class Event(Base):
         )
 
 
+class Player(Base):
+
+    __tablename__ = 'players'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    dob = Column(Date)
+
+    pdc_ranking = Column(Integer, nullable=True)
+    red_dragon_ranking = Column(Integer, nullable=True)
+    ddb_ranking = Column(Integer, nullable=True)
+    ddb_popularity = Column(Integer, nullable=True)
+
+    career_earnings = Column(Float, nullable=True)
+    career_9_darters = Column(Integer, nullable=True)
+
+    match_results = relationship(
+        'MatchResult',
+        back_populates='player'
+    )
+
+    def __repr__(self):
+        return "<Player(id='%s', name='%s', pdc_ranking='%s')>" % (
+            self.id,
+            self.name,
+            self.pdc_ranking
+        )
+
+
 class Match(Base):
 
     __tablename__ = 'matches'
@@ -110,10 +109,10 @@ class Match(Base):
 
     events = relationship('Event', back_populates='matches')
 
-    players = relationship(
-        'Player',
-        secondary='match_players',
-        back_populates='matches'
+    match_results = relationship(
+        'MatchResult',
+        back_populates='match',
+        lazy='dynamic'
     )
 
     def __repr__(self):
@@ -121,13 +120,31 @@ class Match(Base):
             self.id,
             self.date,
             self.event_id,
-            ' vs '.join([x.name for x in self.players])
+            ' vs '.join([x.player.name for x in self.match_results])
         )
 
 
-match_players = Table(
-    'match_players',
-    Base.metadata,
-    Column('player_id', Integer, ForeignKey('players.id')),
-    Column('match_id', Integer, ForeignKey('matches.id'))
-)
+class MatchResult(Base):
+
+    __tablename__ = 'match_results'
+
+    player_id = Column(Integer, ForeignKey('players.id'), primary_key=True)
+    match_id = Column(Integer, ForeignKey('matches.id'), primary_key=True)
+    score = Column(Integer)
+    average = Column(Float)
+    oneeighties = Column(Integer)
+    high_checkout = Column(Integer)
+    checkout_percent = Column(Float)
+    checkout_chances = Column(Integer)
+
+    player = relationship('Player', back_populates='match_results')
+    match = relationship('Match', back_populates='match_results')
+
+    def __repr__(self):
+        return "<MatchResult(player='%s', vs='%s', score='%s')>" % (
+            self.player.name,
+            self.match.match_results.
+                filter(MatchResult.player_id != self.player_id).
+                first().player.name,
+            self.score
+        )
