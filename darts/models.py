@@ -10,18 +10,17 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
-    Table,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
 from darts import settings
 
 
-engine = create_engine(settings.DATABASE_URL)
-
 Base = declarative_base()
+engine = create_engine(settings.DATABASE_URL)
+Session = sessionmaker(bind=engine)
 
 
 class Tournament(Base):
@@ -151,7 +150,7 @@ class MatchResult(Base):
         return "<MatchResult(player='%s', vs='%s', score='%s')>" % (
             self.player.name,
             self.match.match_results.
-                filter(MatchResult.player_id != self.player_id).
-                first().player.name,
+               filter(MatchResult.player_id != self.player_id).
+               first().player.name,
             self.score
         )

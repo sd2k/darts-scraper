@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from scrapy import Item, Field
+from scrapy.loader.processors import TakeFirst
 
 
 class Tournament(Item):
@@ -15,6 +16,9 @@ class Event(Item):
     tournament_id = Field()
     name = Field()
     year = Field()
+    category = Field()
+    prize_fund = Field()
+    winner_player_id = Field()
     venue = Field()
     tv_coverage = Field()
     sponsor = Field()
@@ -23,16 +27,16 @@ class Event(Item):
 class Player(Item):
 
     id = Field()
-    name = Field()
-    dob = Field()
+    name = Field(output_processor=TakeFirst())
+    dob = Field(output_processor=TakeFirst())
 
-    pdc_ranking = Field()
-    red_dragon_ranking = Field()
-    ddb_ranking = Field()
-    ddb_popularity = Field()
+    pdc_ranking = Field(output_processor=TakeFirst())
+    red_dragon_ranking = Field(output_processor=TakeFirst())
+    ddb_ranking = Field(output_processor=TakeFirst())
+    ddb_popularity = Field(output_processor=TakeFirst())
 
-    career_earnings = Field()
-    career_9_darters = Field()
+    career_earnings = Field(output_processor=TakeFirst())
+    career_9_darters = Field(output_processor=TakeFirst())
 
 
 class Match(Item):
