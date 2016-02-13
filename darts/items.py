@@ -4,8 +4,8 @@ from scrapy import Item, Field
 from scrapy.loader.processors import TakeFirst
 
 
-class TakeFirstField(Field):
-    output_processor = TakeFirst()
+def TakeFirstField():
+    return Field(output_processor=TakeFirst())
 
 
 class Tournament(Item):
