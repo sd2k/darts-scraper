@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import urlparse
+
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst
@@ -20,10 +22,16 @@ class EventSpider(Spider):
                 formdata={'year': '2016'},
                 callback=self.parse_tournaments,
             ),
-            # scrapy.FormRequest(
-            #     'http://www.dartsdatabase.co.uk/EventList.aspx',
-            #     formdata={'year': '2015'},
-            # ),
+            scrapy.FormRequest(
+                'http://www.dartsdatabase.co.uk/EventList.aspx',
+                formdata={'year': '2015'},
+                callback=self.parse_tournaments,
+            ),
+            scrapy.FormRequest(
+                'http://www.dartsdatabase.co.uk/EventList.aspx',
+                formdata={'year': '2014'},
+                callback=self.parse_tournaments,
+            ),
         ]
 
     tournament_row_xpath = 'body/form/table/tr/td/center/table/tr'
@@ -85,6 +93,7 @@ class EventSpider(Spider):
                 tournament_id = tournament_url.split('=')[-1]
 
             if utils.is_new('tournament', tournament_id):
+                self.logger.debug('New tournament found: %s', tournament_id)
                 loader = ItemLoader(
                     Tournament(id=tournament_id),
                     selector=tourn_row,
@@ -93,11 +102,17 @@ class EventSpider(Spider):
                 for field, xpath in self.tournament_item_fields.iteritems():
                     loader.add_xpath(field, xpath)
                 yield loader.load_item()
+            else:
+                self.logger.debug('Found old tournament: %s', tournament_id)
 
-            event_url = tourn_row.xpath(event_url_xpath).extract_first()
+            event_url = urlparse.urljoin(
+                response.url,
+                tourn_row.xpath(event_url_xpath).extract_first()
+            )
             event_id = event_url.split('=')[-1]
 
             if utils.is_new('event', event_id):
+                self.logger.debug('New event found: %s', event_id)
                 year = req.get('year')
                 category = tourn_row.xpath(category_xpath).extract_first()
                 prize_fund = tourn_row.xpath(prize_fund_xpath).extract_first()
@@ -116,6 +131,8 @@ class EventSpider(Spider):
                         winner_player_id=winner_player_id
                     )
                 )
+            else:
+                self.logger.debug('Found old event: %s', event_id)
 
     def parse_event(self, response):
         """
@@ -129,45 +146,53 @@ class EventSpider(Spider):
 
         event_id = response.url.split('=')[-1]
 
-        event = Event(
-            id=event_id,
-            tournament_id=response.meta['tournament_id'],
-            year=response.meta['year'],
-            category=response.meta['category'],
-            prize_fund=response.meta['prize_fund'],
-            winner_player_id=response.meta['winner_player_id'],
-        )
-        self.logger.debug('Loading event %s', event['id'])
-
-        event_selector = Selector(response).xpath(self.event_info_xpath)
-
-        event_loader = ItemLoader(
-            event,
-            response=response,
-            selector=event_selector,
-            default_output_processor=TakeFirst(),
-        )
-        for field, xpath in self.event_item_fields.iteritems():
-            event_loader.add_xpath(field, xpath)
-        yield event_loader.load_item()
-
-        for match_row in response.xpath(self.event_match_table_xpath):
-            left_player_url = match_row.xpath('td[1]/a/@href').extract_first()
-            left_player_id = left_player_url.split('=')[-1]
-
-            right_player_url = match_row.xpath('td[3]/a/@href').extract_first()
-            right_player_id = right_player_url.split('=')[-1]
-
-            match_url = match_row.xpath('td[2]/a/@href').extract_first()
-            yield scrapy.Request(
-                match_url,
-                callback=self.parse_match,
-                meta=dict(
-                    event_id=event_id,
-                    left_player_id=left_player_id,
-                    right_player_id=right_player_id,
-                )
+        if utils.is_new('event', event_id):
+            event = Event(
+                id=event_id,
+                tournament_id=response.meta['tournament_id'],
+                year=response.meta['year'],
+                category=response.meta['category'],
+                prize_fund=response.meta['prize_fund'],
+                winner_player_id=response.meta['winner_player_id'],
             )
+            self.logger.debug('Loading event %s', event['id'])
+
+            event_selector = Selector(response).xpath(self.event_info_xpath)
+
+            event_loader = ItemLoader(
+                event,
+                response=response,
+                selector=event_selector,
+                default_output_processor=TakeFirst(),
+            )
+            for field, xpath in self.event_item_fields.iteritems():
+                event_loader.add_xpath(field, xpath)
+            yield event_loader.load_item()
+
+            for match_row in response.xpath(self.event_match_table_xpath):
+                left_player_url = match_row.xpath(
+                    'td[1]/a/@href'
+                ).extract_first()
+                left_player_id = left_player_url.split('=')[-1]
+
+                right_player_url = match_row.xpath(
+                    'td[3]/a/@href'
+                ).extract_first()
+                right_player_id = right_player_url.split('=')[-1]
+
+                match_url = urlparse.urljoin(
+                    response.url,
+                    match_row.xpath('td[2]/a/@href').extract_first()
+                )
+                yield scrapy.Request(
+                    match_url,
+                    callback=self.parse_match,
+                    meta=dict(
+                        event_id=event_id,
+                        left_player_id=left_player_id,
+                        right_player_id=right_player_id,
+                    )
+                )
 
     def parse_match(self, response):
         self.logger.debug('Parsing %s', response.url)
@@ -194,7 +219,7 @@ class EventSpider(Spider):
         # Each tuple is a name + the xpath axis relative to the middle column
         # on the match results page.
         for result in [
-                ('left', 'predecing-sibling'),
+                ('left', 'preceding-sibling'),
                 ('right', 'following-sibling'),
                 ]:
             match_result = MatchResult(

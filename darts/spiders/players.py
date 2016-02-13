@@ -17,12 +17,12 @@ class PlayerSpider(CrawlSpider):
 
     rules = [
         Rule(
-            LinkExtractor(allow=('PlayerStats\.aspx\?statKey',))
-        ),
-        Rule(
             LinkExtractor(allow=('PlayerDetails\.aspx',)),
             callback='parse_player'
-        )
+        ),
+        Rule(
+            LinkExtractor(allow=('PlayerStats\.aspx\?statKey=1',))
+        ),
     ]
 
     item_fields = dict(
