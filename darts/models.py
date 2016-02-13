@@ -23,6 +23,9 @@ engine = create_engine(settings.DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
 
+session = Session()
+
+
 class Tournament(Base):
 
     __tablename__ = 'tournaments'
@@ -43,9 +46,9 @@ class Tournament(Base):
 def generate_name(context):
     return '{} {}'.format(
         context.current_parameters['year'],
-        select(Tournament.name).where(
-            Tournament.id == context.current_parameters['tournament_id']
-        )
+        session.query(Tournament).filter(
+            Tournament.id == int(context.current_parameters['tournament_id'])
+        ).one().name
     )
 
 
