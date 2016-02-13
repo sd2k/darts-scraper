@@ -60,7 +60,7 @@ class Event(Base):
     category = Column(String, nullable=True)
     prize_fund = Column(Integer, nullable=True)
     winner_player_id = Column(Integer, ForeignKey('players.id'))
-    venue = Column(Integer, nullable=True)
+    venue = Column(String, nullable=True)
     tv_coverage = Column(String, nullable=True)
     sponsor = Column(String, nullable=True)
     last_updated = Column(DateTime, default=func.now())
