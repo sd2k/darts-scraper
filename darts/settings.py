@@ -64,7 +64,7 @@ DATABASE_URL = 'postgresql://darts:darts@localhost/darts'
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'darts.pipelines.PlayerPipeline': 300,
+   'darts.pipelines.ItemToDBPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
