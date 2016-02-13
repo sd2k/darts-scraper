@@ -40,7 +40,7 @@ class PlayerPipeline(object):
         player = Player(**item)
 
         try:
-            db_player = self.session.query(Player).filter(
+            self.session.query(Player).filter(
                 Player.id == player.id
             ).one()
             spider.logger.info('Updating player %s', player.name)
