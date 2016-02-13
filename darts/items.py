@@ -4,55 +4,58 @@ from scrapy import Item, Field
 from scrapy.loader.processors import TakeFirst
 
 
+class TakeFirstField(Field):
+    output_processor = TakeFirst()
+
+
 class Tournament(Item):
 
-    id = Field()
-    name = Field()
+    id = TakeFirstField()
+    name = TakeFirstField()
 
 
 class Event(Item):
 
-    id = Field()
-    tournament_id = Field()
-    name = Field()
-    year = Field()
-    category = Field()
-    prize_fund = Field()
-    winner_player_id = Field()
-    venue = Field()
-    tv_coverage = Field()
-    sponsor = Field()
+    id = TakeFirstField()
+    tournament_id = TakeFirstField()
+    name = TakeFirstField()
+    year = TakeFirstField()
+    category = TakeFirstField()
+    prize_fund = TakeFirstField()
+    winner_player_id = TakeFirstField()
+    venue = TakeFirstField()
+    tv_coverage = TakeFirstField()
+    sponsor = TakeFirstField()
 
 
 class Player(Item):
 
     id = Field()
-    name = Field(output_processor=TakeFirst())
-    dob = Field(output_processor=TakeFirst())
+    name = TakeFirstField()
+    dob = TakeFirstField()
 
-    pdc_ranking = Field(output_processor=TakeFirst())
-    red_dragon_ranking = Field(output_processor=TakeFirst())
-    ddb_ranking = Field(output_processor=TakeFirst())
-    ddb_popularity = Field(output_processor=TakeFirst())
+    pdc_ranking = TakeFirstField()
+    red_dragon_ranking = TakeFirstField()
+    ddb_ranking = TakeFirstField()
+    ddb_popularity = TakeFirstField()
 
-    career_earnings = Field(output_processor=TakeFirst())
-    career_9_darters = Field(output_processor=TakeFirst())
+    career_earnings = TakeFirstField()
+    career_9_darters = TakeFirstField()
 
 
 class Match(Item):
 
-    id = Field()
-    date = Field()
-    event_id = Field()
+    id = TakeFirstField()
+    date = TakeFirstField()
+    event_id = TakeFirstField()
 
 
 class MatchResult(Item):
 
-    player_name = Field()
-    match_id = Field()
-    score = Field()
-    average = Field()
-    oneeighties = Field()
-    high_checkout = Field()
-    checkout_percent = Field()
-    checkout_chances = Field()
+    player_id = TakeFirstField()
+    match_id = TakeFirstField()
+    score = TakeFirstField()
+    average = TakeFirstField()
+    oneeighties = TakeFirstField()
+    high_checkout = TakeFirstField()
+    checkout_info = TakeFirstField()
