@@ -10,8 +10,15 @@ import re
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from darts import items
-from darts.models import Event, Match, MatchResult, Player, Session, Tournament
+from darts.scraper import items
+from darts.models import (
+    Event,
+    Match,
+    MatchResult,
+    Player,
+    Session,
+    Tournament,
+)
 
 
 class ItemToDBPipeline(object):

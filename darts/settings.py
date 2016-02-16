@@ -12,8 +12,8 @@
 
 BOT_NAME = 'darts'
 
-SPIDER_MODULES = ['darts.spiders']
-NEWSPIDER_MODULE = 'darts.spiders'
+SPIDER_MODULES = ['darts.scraper.spiders']
+NEWSPIDER_MODULE = 'darts.scraper.spiders'
 
 DATABASE_URL = 'postgresql://darts:darts@localhost/darts'
 
@@ -64,7 +64,7 @@ DATABASE_URL = 'postgresql://darts:darts@localhost/darts'
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'darts.pipelines.ItemToDBPipeline': 300,
+   'darts.scraper.pipelines.ItemToDBPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

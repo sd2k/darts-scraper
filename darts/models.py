@@ -2,7 +2,6 @@
 
 from sqlalchemy import (
     create_engine,
-    select,
     Column,
     Date,
     DateTime,

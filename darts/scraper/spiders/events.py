@@ -7,8 +7,13 @@ from scrapy.loader.processors import TakeFirst
 from scrapy.spiders import Spider
 from scrapy.selector import Selector
 
-from darts import utils
-from darts.items import Tournament, Event, Match, MatchResult
+from darts.scraper import utils
+from darts.scraper.items import (
+    Event,
+    Match,
+    MatchResult,
+    Tournament,
+)
 
 
 class EventSpider(Spider):

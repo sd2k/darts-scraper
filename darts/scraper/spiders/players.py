@@ -5,7 +5,7 @@ from scrapy.loader.processors import TakeFirst
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.selector import Selector
 
-from darts.items import Player
+from darts.scraper.items import Player
 
 
 class PlayerSpider(CrawlSpider):
