@@ -2,6 +2,7 @@
 
 from sqlalchemy import (
     create_engine,
+    Boolean,
     Column,
     Date,
     DateTime,
@@ -57,6 +58,7 @@ class Event(Base):
 
     id = Column(Integer, primary_key=True)
     tournament_id = Column(Integer, ForeignKey('tournaments.id'))
+    always_check = Column(Boolean, default=False, nullable=True)
     name = Column(String, default=generate_name)
     year = Column(Integer)
     category = Column(String, nullable=True)
