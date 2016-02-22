@@ -27,16 +27,16 @@ class EventSpider(Spider):
                 formdata={'year': '2016'},
                 callback=self.parse_tournaments,
             ),
-            scrapy.FormRequest(
-                'http://www.dartsdatabase.co.uk/EventList.aspx',
-                formdata={'year': '2015'},
-                callback=self.parse_tournaments,
-            ),
-            scrapy.FormRequest(
-                'http://www.dartsdatabase.co.uk/EventList.aspx',
-                formdata={'year': '2014'},
-                callback=self.parse_tournaments,
-            ),
+            # scrapy.FormRequest(
+            #     'http://www.dartsdatabase.co.uk/EventList.aspx',
+            #     formdata={'year': '2015'},
+            #     callback=self.parse_tournaments,
+            # ),
+            # scrapy.FormRequest(
+            #     'http://www.dartsdatabase.co.uk/EventList.aspx',
+            #     formdata={'year': '2014'},
+            #     callback=self.parse_tournaments,
+            # ),
         ]
 
     tournament_row_xpath = 'body/form/table/tr/td/center/table/tr'
