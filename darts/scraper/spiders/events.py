@@ -53,6 +53,7 @@ class EventSpider(Spider):
     )
 
     event_match_table_xpath = 'body/form/table/tr/td/table/tr[td/@align="right"]'  # noqa
+    fixture_match_table_xpath = 'body/form/table/tr/td/center/table/tr'
 
     match_info_xpath = 'body/form/table/tr/td/center'
     match_item_fields = dict(
@@ -116,7 +117,7 @@ class EventSpider(Spider):
             )
             event_id = event_url.split('=')[-1]
 
-            if utils.is_new('event', event_id):
+            if utils.is_new('event', event_id, check_matches=True):
                 self.logger.debug('New event found: %s', event_id)
                 year = req.get('year')
                 category = tourn_row.xpath(category_xpath).extract_first()
@@ -151,53 +152,78 @@ class EventSpider(Spider):
 
         event_id = response.url.split('=')[-1]
 
-        if utils.is_new('event', event_id):
-            event = Event(
-                id=event_id,
-                tournament_id=response.meta['tournament_id'],
-                year=response.meta['year'],
-                category=response.meta['category'],
-                prize_fund=response.meta['prize_fund'],
-                winner_player_id=response.meta['winner_player_id'],
-            )
-            self.logger.debug('Loading event %s', event['id'])
+        if utils.is_new('event', event_id, check_matches=True):
+            if utils.is_new('event', event_id):
+                event = Event(
+                    id=event_id,
+                    tournament_id=response.meta['tournament_id'],
+                    year=response.meta['year'],
+                    category=response.meta['category'],
+                    prize_fund=response.meta['prize_fund'],
+                    winner_player_id=response.meta['winner_player_id'],
+                )
+                self.logger.debug('Loading event %s', event['id'])
 
-            event_selector = Selector(response).xpath(self.event_info_xpath)
+                event_selector = Selector(response).xpath(
+                    self.event_info_xpath
+                )
 
-            event_loader = ItemLoader(
-                event,
-                response=response,
-                selector=event_selector,
-                default_output_processor=TakeFirst(),
-            )
-            for field, xpath in self.event_item_fields.iteritems():
-                event_loader.add_xpath(field, xpath)
-            yield event_loader.load_item()
+                event_loader = ItemLoader(
+                    event,
+                    response=response,
+                    selector=event_selector,
+                    default_output_processor=TakeFirst(),
+                )
+                for field, xpath in self.event_item_fields.iteritems():
+                    event_loader.add_xpath(field, xpath)
+                yield event_loader.load_item()
 
-            for match_row in response.xpath(self.event_match_table_xpath):
+            if 'EventResults' in response.url:
+                match_rows = response.xpath(self.event_match_table_xpath)
+                left_player_xpath = 'td[1]/a/@href'
+                match_url_xpath = 'td[2]/a/@href'
+                right_player_xpath = 'td[3]/a/@href'
+            elif 'FixtureList' in response.url:
+                match_rows = response.xpath(self.fixture_match_table_xpath)
+                left_player_xpath = 'td[2]/a/@href'
+                match_url_xpath = 'td[3]/a/@href'
+                right_player_xpath = 'td[4]/a/@href'
+            else:
+                return
+
+            for i, match_row in enumerate(match_rows):
                 left_player_url = match_row.xpath(
-                    'td[1]/a/@href'
+                    left_player_xpath
                 ).extract_first()
+                if not left_player_url:
+                    self.logger.debug(
+                        'Blank row %s on page %s', i, response.url
+                    )
+                    continue
                 left_player_id = left_player_url.split('=')[-1]
 
                 right_player_url = match_row.xpath(
-                    'td[3]/a/@href'
+                    right_player_xpath
                 ).extract_first()
                 right_player_id = right_player_url.split('=')[-1]
 
-                match_url = urlparse.urljoin(
-                    response.url,
-                    match_row.xpath('td[2]/a/@href').extract_first()
-                )
-                yield scrapy.Request(
-                    match_url,
-                    callback=self.parse_match,
-                    meta=dict(
-                        event_id=event_id,
-                        left_player_id=left_player_id,
-                        right_player_id=right_player_id,
+                if left_player_id and right_player_id:
+
+                    match_url = urlparse.urljoin(
+                        response.url,
+                        match_row.xpath(match_url_xpath).extract_first()
                     )
-                )
+                    if 'HeadToHead' in match_url:
+                        continue
+                    yield scrapy.Request(
+                        match_url,
+                        callback=self.parse_match,
+                        meta=dict(
+                            event_id=event_id,
+                            left_player_id=left_player_id,
+                            right_player_id=right_player_id,
+                        )
+                    )
 
     def parse_match(self, response):
         self.logger.debug('Parsing %s', response.url)
