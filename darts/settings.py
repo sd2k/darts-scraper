@@ -85,3 +85,15 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR='httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES=[]
 #HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# =========================================================================== #
+
+import os
+
+import yaml
+
+# Load custom settings from the YAML file specified by APP_SETTINGS_YAML
+custom_settings_filepath = os.environ.get('APP_SETTINGS_YAML')
+if custom_settings_filepath is not None:
+    with open(custom_settings_filepath) as infile:
+        globals().update(yaml.safe_load(infile))
