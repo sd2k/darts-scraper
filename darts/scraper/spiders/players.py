@@ -52,6 +52,6 @@ class PlayerSpider(CrawlSpider):
             selector=selector,
             default_output_processor=TakeFirst()
         )
-        for field, xpath in self.item_fields.iteritems():
+        for field, xpath in self.item_fields.items():
             loader.add_xpath(field, xpath)
         yield loader.load_item()

@@ -88,7 +88,9 @@ class EventSpider(Spider):
         """
         self.logger.debug('Parsing %s', response.url)
 
-        req = dict([x.split('=') for x in response.request.body.split('&')])
+        req = dict(
+            [x.split('=') for x in str(response.request.body).split('&')]
+        )
 
         event_url_xpath = 'td[1]/a/@href'
         tournament_url_xpath = 'td[2]/a/@href'
@@ -114,7 +116,7 @@ class EventSpider(Spider):
                     selector=tourn_row,
                     default_output_processor=TakeFirst(),
                 )
-                for field, xpath in self.tournament_item_fields.iteritems():
+                for field, xpath in self.tournament_item_fields.items():
                     loader.add_xpath(field, xpath)
                 yield loader.load_item()
             else:
@@ -183,7 +185,7 @@ class EventSpider(Spider):
                     selector=event_selector,
                     default_output_processor=TakeFirst(),
                 )
-                for field, xpath in self.event_item_fields.iteritems():
+                for field, xpath in self.event_item_fields.items():
                     event_loader.add_xpath(field, xpath)
                 yield event_loader.load_item()
 
@@ -316,7 +318,7 @@ class EventSpider(Spider):
             selector=match_info_selector,
             default_output_processor=TakeFirst(),
         )
-        for field, xpath in self.match_item_fields.iteritems():
+        for field, xpath in self.match_item_fields.items():
             match_loader.add_xpath(field, xpath)
         yield match_loader.load_item()
 
@@ -340,7 +342,7 @@ class EventSpider(Spider):
                 selector=match_result_table_selector,
                 default_output_processor=TakeFirst()
             )
-            for field, xpath in self.match_result_item_fields.iteritems():
+            for field, xpath in self.match_result_item_fields.items():
                 results_loader.add_xpath(field, xpath.format(result[1]))
             yield results_loader.load_item()
 

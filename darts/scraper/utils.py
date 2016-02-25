@@ -1,8 +1,3 @@
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
-
 from sqlalchemy.orm.exc import NoResultFound
 
 from darts.models import Event, Fixture, Match, Session, Tournament
@@ -57,14 +52,3 @@ def remove_fixture(left_player_id, right_player_id, date, logger):
         )
     except NoResultFound:
         pass
-
-
-def parse_pg_url(url):
-    db = urlparse.urlparse(url)
-    return dict(
-        host=db.hostname,
-        port=db.port,
-        username=db.username,
-        password=db.password,
-        database=db.username,
-    )
