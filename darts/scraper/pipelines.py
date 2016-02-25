@@ -143,22 +143,17 @@ class ItemToDBPipeline(object):
             self.session.commit()
             spider.logger.info('Added match %s', match)
 
-            try:
-                # Check for any existing fixtures
-                existing_fixture = self.session.query(Fixture).filter(
-                    Fixture.event_id == match.event_id
-                ).filter(
-                    ((Fixture.player_1_id == player_ids[0]) &
-                        (Fixture.player_2_id == player_ids[1]))
-                    |
-                    ((Fixture.player_2_id == player_ids[0]) &
-                        (Fixture.player_1_id == player_ids[1]))
-                ).one()
-                spider.logger.info('Removing old %s', existing_fixture)
-                existing_fixture.delete()
-
-            except NoResultFound:
-                pass
+            # Check for any existing fixtures
+            event_fixtures = match.event.fixtures
+            this_fixture = [
+                fixture
+                for fixture in event_fixtures
+                if all(player in player_ids for player in fixture.players)
+            ]
+            if this_fixture:
+                spider.logger.info('Removing old %s', this_fixture[0])
+                self.session.delete(this_fixture[0])
+                self.session.commit()
 
         except IntegrityError:
             spider.logger.info('%s already existed', match)
