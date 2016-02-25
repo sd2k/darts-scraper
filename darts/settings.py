@@ -17,6 +17,9 @@ NEWSPIDER_MODULE = 'darts.scraper.spiders'
 
 DATABASE_URL = 'postgresql://darts:darts@localhost/darts'
 
+SLACK_API_TOKEN = None
+SLACK_BOT_NAME = 'dartsbot'
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'darts (+http://www.yourdomain.com)'
 
