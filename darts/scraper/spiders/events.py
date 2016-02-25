@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-import urlparse
+import datetime
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 import scrapy
 from scrapy.loader import ItemLoader
@@ -10,6 +14,7 @@ from scrapy.selector import Selector
 from darts.scraper import utils
 from darts.scraper.items import (
     Event,
+    Fixture,
     Match,
     MatchResult,
     Tournament,
@@ -22,6 +27,10 @@ class EventSpider(Spider):
 
     def start_requests(self):
         return [
+            # scrapy.Request(
+            #     'http://www.dartsdatabase.co.uk/FixtureList.aspx?EventKey=7460',  # noqa
+            #     callback=self.parse_event
+            # ),
             scrapy.FormRequest(
                 'http://www.dartsdatabase.co.uk/EventList.aspx',
                 formdata={'year': '2016'},
@@ -180,16 +189,76 @@ class EventSpider(Spider):
 
             if 'EventResults' in response.url:
                 match_rows = response.xpath(self.event_match_table_xpath)
+                fixture_rows = []
+
                 left_player_xpath = 'td[1]/a/@href'
                 match_url_xpath = 'td[2]/a/@href'
                 right_player_xpath = 'td[3]/a/@href'
             elif 'FixtureList' in response.url:
-                match_rows = response.xpath(self.fixture_match_table_xpath)
+                all_rows = response.xpath(self.fixture_match_table_xpath)
+                date_xpath = 'td[1]/text()'
                 left_player_xpath = 'td[2]/a/@href'
                 match_url_xpath = 'td[3]/a/@href'
                 right_player_xpath = 'td[4]/a/@href'
+
+                valid_rows = [
+                    row
+                    for row in all_rows
+                    if row.xpath(match_url_xpath).extract_first()
+                ]
+
+                match_rows = [
+                    row
+                    for row in valid_rows
+                    if 'MatchStats' in row.xpath(match_url_xpath).extract_first()
+                ]
+                fixture_rows = [
+                    row
+                    for row in valid_rows
+                    if 'HeadToHead' in row.xpath(match_url_xpath).extract_first()
+                ]
             else:
                 return
+
+            self.logger.debug(
+                '%s fixtures found on page %s',
+                len(fixture_rows),
+                response.url
+            )
+
+            for i, fixture_row in enumerate(fixture_rows):
+
+                left_player_url = fixture_row.xpath(
+                    left_player_xpath
+                ).extract_first()
+                if not left_player_url:
+                    self.logger.debug(
+                        'Blank row %s on page %s', i, response.url
+                    )
+                    continue
+                left_player_id = left_player_url.split('=')[-1]
+
+                right_player_url = fixture_row.xpath(
+                    right_player_xpath
+                ).extract_first()
+                right_player_id = right_player_url.split('=')[-1]
+
+                date = fixture_row.xpath(
+                    date_xpath
+                ).extract_first()
+
+                fixture = Fixture(
+                    event_id=event_id,
+                    player_ids=[left_player_id, right_player_id],
+                    date=date
+                )
+                yield fixture
+
+            self.logger.debug(
+                '%s matches found on page %s',
+                len(match_rows),
+                response.url
+            )
 
             for i, match_row in enumerate(match_rows):
                 left_player_url = match_row.xpath(
@@ -213,17 +282,19 @@ class EventSpider(Spider):
                         response.url,
                         match_row.xpath(match_url_xpath).extract_first()
                     )
+                    match_id = match_url.split('=')[-1]
                     if 'HeadToHead' in match_url:
                         continue
-                    yield scrapy.Request(
-                        match_url,
-                        callback=self.parse_match,
-                        meta=dict(
-                            event_id=event_id,
-                            left_player_id=left_player_id,
-                            right_player_id=right_player_id,
+                    if utils.is_new('match', match_id):
+                        yield scrapy.Request(
+                            match_url,
+                            callback=self.parse_match,
+                            meta=dict(
+                                event_id=event_id,
+                                left_player_id=left_player_id,
+                                right_player_id=right_player_id,
+                            )
                         )
-                    )
 
     def parse_match(self, response):
         self.logger.debug('Parsing %s', response.url)
@@ -232,7 +303,9 @@ class EventSpider(Spider):
 
         match = Match(
             id=match_id,
-            event_id=response.meta['event_id']
+            event_id=response.meta['event_id'],
+            left_player_id=response.meta['left_player_id'],
+            right_player_id=response.meta['right_player_id'],
         )
 
         match_info_selector = Selector(response).xpath(self.match_info_xpath)
@@ -270,3 +343,18 @@ class EventSpider(Spider):
             for field, xpath in self.match_result_item_fields.iteritems():
                 results_loader.add_xpath(field, xpath.format(result[1]))
             yield results_loader.load_item()
+
+        try:
+            match_date = match_info_selector.xpath(
+                self.match_item_fields['date']
+            ).extract_first()
+
+            date = datetime.datetime.strptime(match_date, '%d/%m/%Y').date()
+
+            utils.remove_fixture(
+                response.meta['left_player_id'],
+                response.meta['right_player_id'],
+                date
+            )
+        except:
+            pass

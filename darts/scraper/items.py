@@ -43,11 +43,21 @@ class Player(Item):
     career_9_darters = TakeFirstField()
 
 
+class Fixture(Item):
+
+    player_ids = Field()
+    event_id = Field()
+    date = Field()
+
+
 class Match(Item):
 
     id = TakeFirstField()
     date = TakeFirstField()
     event_id = TakeFirstField()
+
+    left_player_id = Field()
+    right_player_id = Field()
 
 
 class MatchResult(Item):

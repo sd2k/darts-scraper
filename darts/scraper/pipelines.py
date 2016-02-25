@@ -8,11 +8,13 @@
 from datetime import datetime
 import re
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 from darts.scraper import items
 from darts.models import (
     Event,
+    Fixture,
     Match,
     MatchResult,
     Player,
@@ -31,6 +33,8 @@ class ItemToDBPipeline(object):
             self.process_event(item, spider)
         elif isinstance(item, items.Match):
             self.process_match(item, spider)
+        elif isinstance(item, items.Fixture):
+            self.process_fixture(item, spider)
         elif isinstance(item, items.MatchResult):
             self.process_match_result(item, spider)
 
@@ -62,17 +66,17 @@ class ItemToDBPipeline(object):
             self.session.query(Player).filter(
                 Player.id == player.id
             ).one()
-            spider.logger.info('Updating player %s', player.name)
+            spider.logger.info('Updating %s', player)
             self.session.query(Player).filter(
                 Player.id == player.id).update(item)
             self.session.commit()
         except NoResultFound:
-            spider.logger.info('Adding player %s', player.name)
+            spider.logger.info('Adding %s', player)
             self.session.add(player)
             self.session.commit()
         except:
             spider.logger.debug(
-                'Error adding or updating player %s', player.name
+                'Error adding or updating %s', player
             )
             self.session.rollback()
             raise
@@ -84,12 +88,12 @@ class ItemToDBPipeline(object):
         tournament = Tournament(**item)
 
         try:
-            spider.logger.info('Adding tournament %s', tournament.name)
             self.session.add(tournament)
             self.session.commit()
+            spider.logger.info('Added %s', tournament)
         except:
             spider.logger.debug(
-                'Error adding tournament %s', tournament.name
+                'Error adding %s', tournament
             )
             self.session.rollback()
             raise
@@ -106,12 +110,12 @@ class ItemToDBPipeline(object):
         event = Event(**item)
 
         try:
-            spider.logger.info('Adding event %s', event.name)
             self.session.add(event)
             self.session.commit()
+            spider.logger.info('Added %s', event)
         except:
             spider.logger.debug(
-                'Error adding event %s', event.name
+                'Error adding %s', event
             )
             self.session.rollback()
             raise
@@ -130,16 +134,65 @@ class ItemToDBPipeline(object):
                 '%d/%m/%Y',
             ).date()
 
+        player_ids = [item.pop('left_player_id'), item.pop('right_player_id')]
+
         match = Match(**item)
 
         try:
-            spider.logger.info('Adding match %s', match.id)
             self.session.add(match)
             self.session.commit()
+            spider.logger.info('Added match %s', match)
+
+            try:
+                # Check for any existing fixtures
+                existing_fixture = self.session.query(Fixture).filter(
+                    Fixture.event_id == match.event_id
+                ).filter(
+                    ((Fixture.player_1_id == player_ids[0]) &
+                        (Fixture.player_2_id == player_ids[1]))
+                    |
+                    ((Fixture.player_2_id == player_ids[0]) &
+                        (Fixture.player_1_id == player_ids[1]))
+                ).one()
+                spider.logger.info('Removing old %s', existing_fixture)
+                existing_fixture.delete()
+
+            except NoResultFound:
+                pass
+
+        except IntegrityError:
+            spider.logger.info('%s already existed', match)
+            pass
         except:
             spider.logger.debug(
-                'Error adding match %s', match.id
+                'Error adding %s', match
             )
+            self.session.rollback()
+            raise
+
+    def process_fixture(self, item, spider):
+
+        try:
+            date = datetime.strptime(item['date'], '%d/%m/%Y').date()
+        except UnicodeEncodeError:
+            return
+
+        fixture = Fixture(
+            event_id=item['event_id'],
+            date=date,
+        )
+        fixture.players = self.session.query(Player).filter(
+            Player.id.in_(item['player_ids'])
+        )
+
+        try:
+            self.session.add(fixture)
+            self.session.commit()
+            spider.logger.info('Added %s', fixture)
+        except IntegrityError:
+            self.session.rollback()
+        except:
+            spider.logger.debug('Error adding %s', fixture)
             self.session.rollback()
             raise
 
@@ -176,19 +229,17 @@ class ItemToDBPipeline(object):
         match_result = MatchResult(**newitem)
 
         try:
-            spider.logger.info(
-                'Adding match_result (player: %s, match: %s',
-                match_result.player_id,
-                match_result.match_id,
-            )
             self.session.add(match_result)
+            spider.logger.info('Adding %s', match_result)
             self.session.commit()
-        except:
+        except IntegrityError:
             spider.logger.debug(
-                'Error match_result (player: %s, match: %s',
-                match_result.player_id,
-                match_result.match_id,
+                'match_result %s already existed',
+                match_result,
             )
+            pass
+        except:
+            spider.logger.debug('Error adding or updating %s', match_result)
             self.session.rollback()
             raise
 
