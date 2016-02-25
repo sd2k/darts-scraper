@@ -6,7 +6,6 @@ import luigi.postgres
 import scrapy.crawler
 import scrapy.settings
 
-import darts
 from darts import settings
 from . import mixins, targets, utils
 

@@ -212,12 +212,12 @@ class EventSpider(Spider):
                 match_rows = [
                     row
                     for row in valid_rows
-                    if 'MatchStats' in row.xpath(match_url_xpath).extract_first()
+                    if 'MatchStats' in row.xpath(match_url_xpath).extract_first()  # noqa
                 ]
                 fixture_rows = [
                     row
                     for row in valid_rows
-                    if 'HeadToHead' in row.xpath(match_url_xpath).extract_first()
+                    if 'HeadToHead' in row.xpath(match_url_xpath).extract_first()  # noqa
                 ]
             else:
                 return
