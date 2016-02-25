@@ -11,7 +11,8 @@ from sqlalchemy import (
     Integer,
     String,
 )
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import backref, relationship, sessionmaker
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
@@ -70,7 +71,8 @@ class Event(Base):
     last_updated = Column(DateTime, default=func.now())
 
     tournaments = relationship('Tournament', back_populates='events')
-    matches = relationship('Match', back_populates='events')
+    matches = relationship('Match', back_populates='event')
+    fixtures = relationship('Fixture', back_populates='event')
 
     def __repr__(self):
         return "<Event(id='%s', name='%s', tournament_id='%s')>" % (
@@ -99,8 +101,10 @@ class Player(Base):
 
     match_results = relationship(
         'MatchResult',
-        back_populates='player'
+        back_populates='player',
+        lazy='dynamic'
     )
+    fixtures = association_proxy('fixture_players', 'fixture')
 
     def __repr__(self):
         return "<Player(id='%s', name='%s', pdc_ranking='%s')>" % (
@@ -119,7 +123,7 @@ class Match(Base):
     event_id = Column(Integer, ForeignKey('events.id'))
     last_updated = Column(DateTime, default=func.now())
 
-    events = relationship('Event', back_populates='matches')
+    event = relationship('Event', back_populates='matches')
 
     match_results = relationship(
         'MatchResult',
@@ -132,7 +136,7 @@ class Match(Base):
             self.id,
             self.date,
             self.event_id,
-            ' vs '.join([x.player.name for x in self.match_results])
+            ' vs '.join(x.player.name for x in self.match_results)
         )
 
 
@@ -160,4 +164,59 @@ class MatchResult(Base):
                filter(MatchResult.player_id != self.player_id).
                first().player.name,
             self.score
+        )
+
+
+class Fixture(Base):
+
+    """
+    A fixture is an as-yet unplayed match.
+
+    As matches get played, fixtures should be removed.
+    """
+
+    __tablename__ = 'fixtures'
+
+    id = Column(Integer, primary_key=True)
+    event_id = Column(Integer, ForeignKey('events.id'))
+    date = Column(Date)
+
+    event = relationship('Event')
+
+    players = association_proxy(
+        'fixture_players',
+        'player',
+        creator=lambda i: FixturePlayer(player=i)
+    )
+
+    def __repr__(self):
+        return "<Fixture(event='%s', date='%s', players='%s')>" % (
+            self.event_id,
+            self.date,
+            ' vs '.join(
+                player.name for player in self.players
+            )
+        )
+
+
+class FixturePlayer(Base):
+
+    __tablename__ = 'fixture_players'
+
+    player_id = Column(Integer, ForeignKey('players.id'), primary_key=True)
+    fixture_id = Column(Integer, ForeignKey('fixtures.id'), primary_key=True)
+
+    player = relationship(
+        'Player',
+        backref=backref('fixture_players', cascade='all, delete-orphan')
+    )
+    fixture = relationship(
+        'Fixture',
+        backref=backref('fixture_players', cascade='all, delete-orphan')
+    )
+
+    def __repr__(self):
+        return "<FixturePlayer(fixture='%s', player='%s')>" % (
+            self.fixture_id,
+            self.player.name,
         )
