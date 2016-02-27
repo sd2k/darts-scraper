@@ -14,7 +14,9 @@ class DailyTaskMixin(object):
 class WeeklyTaskMixin(object):
 
     date = parameters.WeekParameter(
-        default=arrow.utcnow().floor('week').date()
+        default=(
+            arrow.utcnow().floor('week') + arrow.arrow.timedelta(days=3)
+        ).date()
     )
 
 

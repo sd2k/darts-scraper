@@ -6,7 +6,7 @@ class WeekParameter(luigi.Parameter):
 
     """
     Enables dates passed on the command line to be floored
-    to the week (Sunday-Sunday).
+    to the week (Thursday - Thursday).
 
     Expects dates in ISO-8601 (YYYY-MM-DD) format.
     """
@@ -15,4 +15,7 @@ class WeekParameter(luigi.Parameter):
         return str(dt)
 
     def parse(self, dt):
-        return arrow.get(dt).floor('week').date()
+        return (
+            arrow.get(dt).floor('week') +
+            arrow.arrow.timedelta(days=3)
+        ).date()
