@@ -157,6 +157,7 @@ class ItemToDBPipeline(object):
 
         except IntegrityError:
             spider.logger.info('%s already existed', match)
+            self.session.rollback()
             pass
         except:
             spider.logger.debug(
@@ -232,6 +233,7 @@ class ItemToDBPipeline(object):
                 'match_result %s already existed',
                 match_result,
             )
+            self.session.rollback()
             pass
         except:
             spider.logger.debug('Error adding or updating %s', match_result)
