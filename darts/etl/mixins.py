@@ -1,5 +1,6 @@
 import arrow
 import luigi
+import records
 import slacker
 
 from darts import settings
@@ -27,4 +28,4 @@ class SlackClientMixin(object):
 
 class PostgresClientMixin(object):
 
-    client = None
+    postgres_client = records.Database(settings.DATABASE_URL)
