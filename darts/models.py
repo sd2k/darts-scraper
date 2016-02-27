@@ -158,12 +158,16 @@ class MatchResult(Base):
     match = relationship('Match', back_populates='match_results')
 
     def __repr__(self):
-        return "<MatchResult(player='%s', vs='%s', score='%s')>" % (
-            self.player.name,
-            self.match.match_results.
-               filter(MatchResult.player_id != self.player_id).
-               first().player.name,
-            self.score
+        try:
+            vs_player = self.match.match_results.\
+                filter(MatchResult.player_id != self.player_id).\
+                first().player.name
+        except AttributeError:
+            vs_player = ''
+        return "<MatchResult(player_id='%s', vs='%s', score='%s')>" % (
+            self.player_id,
+            vs_player,
+            self.score,
         )
 
 
@@ -194,7 +198,7 @@ class Fixture(Base):
             self.event_id,
             self.date,
             ' vs '.join(
-                player.name for player in self.players
+                player.name for player in self.players if player is not None
             )
         )
 
