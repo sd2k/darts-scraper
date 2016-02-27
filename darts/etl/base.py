@@ -154,13 +154,27 @@ class QueryToSlackReportBase(
     slack_channel = '#darts'
 
     def run(self):
-        # results = self.client.run(self.query)
-        # table_output = tabulate(results)
-        table_output = self.query
+        results = self.postgres_client.query(self.query)
+        table_output = textwrap.dedent("""
+            ```
+            {}
+            ```
+        """).strip().format(results.dataset)
+
+        csv_filename = 'output/' + self.task_id + '.csv'
+        with open(csv_filename, 'w') as out:
+            out.write(results.dataset.csv)
+
         self.slack_client.chat.post_message(
             channel=self.slack_channel,
             username=settings.SLACK_BOT_NAME,
             text=table_output,
+        )
+        self.slack_client.files.upload(
+            csv_filename,
+            channels=self.slack_channel,
+            filetype='csv',
+            filename=csv_filename,
         )
 
         self.output().touch()
