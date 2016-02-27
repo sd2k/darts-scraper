@@ -18,7 +18,7 @@ class UpcomingPlayerStatsSlackReport(
     @property
     def query(self):
         return textwrap.dedent("""
-            SELECT string_agg(p.name, ' vs ') OVER (PARTITION BY f.id) AS fixture_name,
+            SELECT STRING_AGG(p.name, ' vs ') OVER (PARTITION BY f.id) AS fixture_name,
                 f.date AS fixture_date,
                 e.name AS fixture_event,
                 stats.player_name,
