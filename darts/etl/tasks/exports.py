@@ -1,6 +1,7 @@
 import textwrap
 
 import luigi
+from scipy.stats import binom
 
 from .views import StatsSince2015View
 from darts.etl import base, mixins
@@ -25,6 +26,11 @@ class UpcomingPlayerStatsSlackReport(
                 stats.oneeighties,
                 stats.legs,
                 stats.oneeighties_per_leg,
+                CASE
+                    WHEN LAG(stats.oneeighties_per_leg) OVER (PARTITION BY f.id ORDER BY p.id) IS NOT NULL
+                        THEN LAG(stats.oneeighties_per_leg) OVER (PARTITION BY f.id ORDER BY p.id) ELSE
+                    LEAD(stats.oneeighties_per_leg) OVER (PARTITION BY f.id ORDER BY p.id)
+                    END AS opponent_oneeighties_per_leg,
                 p.pdc_ranking,
                 p.career_9_darters
             FROM fixtures AS f
@@ -36,6 +42,45 @@ class UpcomingPlayerStatsSlackReport(
         """).strip().format(  # noqa
             stats_table=self.input().table
         )
+
+    def transform(self, dataset):
+
+        def calculate_pa(row, n=11):
+            pa = row[6]
+            pb = row[7]
+            a_wins = sum(
+                binom.pmf(xa + 1, n, pa) * binom.cdf(xa, n, pb)
+                for xa in range(n)
+            )
+            return a_wins
+
+        def calculate_pb(row, n=11):
+            pa = row[6]
+            pb = row[7]
+            b_wins = sum(
+                binom.pmf(xb + 1, n, pb) * binom.cdf(xb, n, pa)
+                for xb in range(n)
+            )
+            return b_wins
+
+        def calculate_p_tie(row, n=11):
+            pa = row[6]
+            pb = row[7]
+            a_wins = sum(
+                binom.pmf(xa + 1, n, pa) * binom.cdf(xa, n, pb)
+                for xa in range(n)
+            )
+            b_wins = sum(
+                binom.pmf(xb + 1, n, pb) * binom.cdf(xb, n, pa)
+                for xb in range(n)
+            )
+            return 1 - a_wins - b_wins
+
+        dataset.append_col(calculate_pa, header='prob_most_180s')
+        dataset.append_col(calculate_pb, header='prob_opponent_most_180s')
+        dataset.append_col(calculate_p_tie, header='prob_tie_most_180s')
+
+        return dataset
 
     def requires(self):
         return StatsSince2015View(date=self.date)

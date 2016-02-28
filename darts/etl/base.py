@@ -151,19 +151,28 @@ class QueryToSlackReportBase(
     query to Slack.
     """
 
+    query = NotImplementedProperty
+    'Query to run on Postgres'
+
+    transform = lambda x: x
+    'Any transforms to do to the dataset'
+
     slack_channel = '#darts'
 
     def run(self):
         results = self.postgres_client.query(self.query)
+
+        dataset = self.transform(results.dataset)
+
         table_output = textwrap.dedent("""
             ```
             {}
             ```
-        """).strip().format(results.dataset)
+        """).strip().format(dataset)
 
         csv_filename = 'output/' + self.task_id + '.csv'
         with open(csv_filename, 'w') as out:
-            out.write(results.dataset.csv)
+            out.write(dataset.csv)
 
         self.slack_client.chat.post_message(
             channel=self.slack_channel,
