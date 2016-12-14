@@ -80,3 +80,12 @@ tags
 # Celery
 celerybeat-schedule
 celerybeat.pid
+
+# Random output
+*.csv
+
+# Betfair certs
+certs
+
+# Pyrope
+.ropeproject
