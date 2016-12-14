@@ -1,3 +1,5 @@
+-e .
+
 alabaster==0.7.7
 alembic==0.8.4
 arrow==0.7.0
@@ -10,8 +12,6 @@ characteristic==14.3.0
 coverage==4.0.3
 cryptography==1.2.2
 cssselect==0.9.1
-Cython==0.23.4
--e git+git@bitbucket.org:sd2k/darts.git@70e2f119c15b0c825db97d9eace85433378b8f34#egg=darts
 decorator==4.0.9
 docopt==0.6.2
 docutils==0.12
