@@ -220,7 +220,7 @@ class ItemToDBPipeline(object):
                         newitem['checkout_info']
                     )
                 )
-                del(newitem['checkout_info'])
+            del(newitem['checkout_info'])
 
         match_result = MatchResult(**newitem)
 
