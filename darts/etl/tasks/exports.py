@@ -47,25 +47,25 @@ class UpcomingPlayerStatsSlackReport(
 
     def transform(self, dataset):
 
-        def calculate_pa(row, n=11):
+        def calculate_pa(row, n=12):
             pa = row[6]
             pb = row[7]
             a_wins = sum(
                 binom.pmf(xa + 1, n, pa) * binom.cdf(xa, n, pb)
                 for xa in range(n)
             )
-            return a_wins
+            return 1/a_wins
 
-        def calculate_pb(row, n=11):
+        def calculate_pb(row, n=12):
             pa = row[6]
             pb = row[7]
             b_wins = sum(
                 binom.pmf(xb + 1, n, pb) * binom.cdf(xb, n, pa)
                 for xb in range(n)
             )
-            return b_wins
+            return 1/b_wins
 
-        def calculate_p_tie(row, n=11):
+        def calculate_p_tie(row, n=12):
             pa = row[6]
             pb = row[7]
             a_wins = sum(
@@ -76,11 +76,11 @@ class UpcomingPlayerStatsSlackReport(
                 binom.pmf(xb + 1, n, pb) * binom.cdf(xb, n, pa)
                 for xb in range(n)
             )
-            return 1 - a_wins - b_wins
+            return 1/(1 - a_wins - b_wins)
 
-        dataset.append_col(calculate_pa, header='prob_most_180s')
-        dataset.append_col(calculate_pb, header='prob_opponent_most_180s')
-        dataset.append_col(calculate_p_tie, header='prob_tie_most_180s')
+        dataset.append_col(calculate_pa, header='odds_most_180s')
+        dataset.append_col(calculate_pb, header='odds_opponent_most_180s')
+        dataset.append_col(calculate_p_tie, header='odds_tie_most_180s')
 
         return dataset
 
