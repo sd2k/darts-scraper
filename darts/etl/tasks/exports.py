@@ -39,6 +39,8 @@ class UpcomingPlayerStatsSlackReport(
             JOIN players AS p ON fp.player_id = p.id
             JOIN events AS e ON f.event_id = e.id
             WHERE f.date - CURRENT_DATE <= 7
+                AND f.date - CURRENT_DATE >= 0
+            ORDER BY fixture_name, player_name
         """).strip().format(  # noqa
             stats_table=self.input().table
         )
