@@ -1,6 +1,7 @@
 from sqlalchemy.orm.exc import NoResultFound
 
-from darts.models import Event, Fixture, Match, Session, Tournament
+from darts.db import Session
+from darts.models import Event, Fixture, Match, Tournament
 
 
 session = Session()
