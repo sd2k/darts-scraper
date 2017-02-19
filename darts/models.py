@@ -243,3 +243,30 @@ class FixturePlayer(Base):
             self.fixture_id,
             self.player.name,
         )
+
+
+class Profile(Base):
+
+    __tablename__ = 'profiles'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    treble_hit_pct = Column(Numeric(4, 2))
+    treble_miss_pct = Column(Numeric(4, 2))
+    treble_big_miss_pct = Column(Numeric(4, 2))
+
+    bullseye_hit_pct = Column(Numeric(4, 2))
+    bullseye_miss_pct = Column(Numeric(4, 2))
+
+    outer_bull_hit_pct = Column(Numeric(4, 2))
+    outer_bull_miss_pct = Column(Numeric(4, 2))
+
+    single_hit_pct = 100.00
+
+    double_hit_pct = Column(Numeric(4, 2))
+    double_miss_inside_pct = Column(Numeric(4, 2))
+    double_miss_outside_pct = Column(Numeric(4, 2))
+
+    def __repr__(self):
+        return "<Profile(name='%s')>" % self.name
