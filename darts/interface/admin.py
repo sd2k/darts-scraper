@@ -14,6 +14,17 @@ class NonEditableModelView(ModelView):
 
 class PlayerView(NonEditableModelView):
 
+    column_default_sort = 'pdc_ranking'
+
+    column_labels = dict(
+        name='Name',
+        pdc_ranking='PDC Ranking',
+        ddb_ranking='DDB Ranking',
+        career_earnings='Career Earnings',
+        career_9_darters='Career 9 darters',
+        red_dragon_ranking='Red Dragon Ranking',
+        ddb_popularity='DDB Popularity',
+    )
     column_list = [
         'name',
         'pdc_ranking',
