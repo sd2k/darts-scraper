@@ -3,7 +3,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
-from dartssim import db, model, settings  # noqa
+from darts import db, model, settings  # noqa
 
 
 # this is the Alembic Config object, which provides
