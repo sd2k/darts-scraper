@@ -11,6 +11,7 @@ import re
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
+from darts.db import Session
 from darts.scraper import items
 from darts.models import (
     Event,
@@ -18,7 +19,6 @@ from darts.models import (
     Match,
     MatchResult,
     Player,
-    Session,
     Tournament,
 )
 

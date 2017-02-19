@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy import (
-    create_engine,
     Boolean,
     Column,
     Date,
@@ -9,22 +8,15 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    Numeric,
     String,
 )
-from sqlalchemy.orm import backref, relationship, sessionmaker
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import func
 
-from darts import settings
-
-
-Base = declarative_base()
-engine = create_engine(settings.DATABASE_URL)
-Session = sessionmaker(bind=engine)
-
-
-session = Session()
+from darts.db import Base
 
 
 class Tournament(Base):
@@ -43,13 +35,17 @@ class Tournament(Base):
             self.name
         )
 
+    def __str__(self):
+        return self.name
+
 
 def generate_name(context):
     return '{} {}'.format(
         context.current_parameters['year'],
-        session.query(Tournament).filter(
-            Tournament.id == int(context.current_parameters['tournament_id'])
-        ).one().name
+        context.connection.execute(
+            'SELECT name FROM tournament WHERE id = %s',
+            int(context.current_parameters['tournament_id'])
+        ).scalar() or 'Unknown Tournament'
     )
 
 
@@ -80,6 +76,9 @@ class Event(Base):
             self.name,
             self.tournament_id
         )
+
+    def __str__(self):
+        return "%s (%s)" % (self.name, self.year)
 
 
 class Player(Base):
@@ -113,6 +112,9 @@ class Player(Base):
             self.pdc_ranking
         )
 
+    def __str__(self):
+        return self.name
+
 
 class Match(Base):
 
@@ -131,12 +133,22 @@ class Match(Base):
         lazy='dynamic'
     )
 
+    @hybrid_property
+    def name(self):
+        return str(self)
+
     def __repr__(self):
         return "<Match(id='%s', date='%s', event='%s', players='%s')>" % (
             self.id,
             self.date,
             self.event_id,
             ' vs '.join(x.player.name for x in self.match_results)
+        )
+
+    def __str__(self):
+        return "{} vs {} - {date}".format(
+            *(result.player for result in self.match_results),
+            date=self.date
         )
 
 
@@ -157,16 +169,23 @@ class MatchResult(Base):
     player = relationship('Player', back_populates='match_results')
     match = relationship('Match', back_populates='match_results')
 
-    def __repr__(self):
+    @property
+    def vs_player(self):
         try:
-            vs_player = self.match.match_results.\
-                filter(MatchResult.player_id != self.player_id).\
-                first().player.name
+            vs_player = (
+                self.match.match_results
+                .filter(MatchResult.player_id != self.player_id)
+                .first()
+                .player.name
+            )
         except AttributeError:
             vs_player = ''
+        return vs_player
+
+    def __repr__(self):
         return "<MatchResult(player_id='%s', vs='%s', score='%s')>" % (
             self.player_id,
-            vs_player,
+            self.vs_player,
             self.score,
         )
 
