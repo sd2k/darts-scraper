@@ -11,5 +11,5 @@ def parse_pg_url(url):
         port=db.port,
         user=db.username,
         password=db.password,
-        database=db.username,
+        database=db.path.lstrip('/'),
     )
