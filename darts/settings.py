@@ -93,10 +93,8 @@ ITEM_PIPELINES = {
 
 import os
 
-import yaml
-
-# Load custom settings from the YAML file specified by APP_SETTINGS_YAML
-custom_settings_filepath = os.environ.get('APP_SETTINGS_YAML')
-if custom_settings_filepath is not None:
-    with open(custom_settings_filepath) as infile:
-        globals().update(yaml.safe_load(infile))
+# Load any settings from environment variables
+for var, value in locals().copy().items():
+    if var.isupper():
+        if os.environ.get(var):
+            globals()[var] = os.environ[var]
