@@ -4,7 +4,7 @@ import os
 from flask import Flask
 
 from darts import settings
-from darts.interface import extensions
+from darts.interface import extensions, views
 
 
 def create_app():
@@ -14,9 +14,7 @@ def create_app():
 
     extensions.register_extensions(app)
 
-    @app.route('/')
-    def index():
-        return '<a href="/admin/">Click me to get to Admin!</a>'
+    app.register_blueprint(views.interface)
 
     return app
 
