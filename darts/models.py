@@ -146,10 +146,13 @@ class Match(Base):
         )
 
     def __str__(self):
-        return "{} vs {} - {date}".format(
-            *(result.player for result in self.match_results),
-            date=self.date
-        )
+        try:
+            return "{} vs {} - {date}".format(
+                *([result.player for result in self.match_results][:2]),
+                date=self.date
+            )
+        except IndexError:
+            return repr(self)
 
 
 class MatchResult(Base):
