@@ -1,0 +1,9 @@
+alembic
+bumpversion
+flake8
+honcho
+pytest
+pytest-cov
+Sphinx
+tox
+wheel
