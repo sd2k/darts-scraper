@@ -5,9 +5,38 @@ from flask_sqlalchemy_session import current_session
 from darts import models
 
 
-class MatchView(ModelView):
+class NonEditableModelView(ModelView):
 
     can_view_details = True
+    can_delete = False
+    can_edit = False
+
+
+class PlayerView(NonEditableModelView):
+
+    column_list = [
+        'name',
+        'pdc_ranking',
+        'ddb_ranking',
+        'career_9_darters',
+        'career_earnings',
+        'red_dragon_ranking',
+        'ddb_popularity',
+    ]
+    column_filters = [
+        'name',
+        'pdc_ranking',
+        'ddb_ranking',
+        'career_earnings',
+        'career_9_darters',
+        'match_results',
+    ]
+
+
+class MatchView(NonEditableModelView):
+
+    can_view_details = True
+    can_edit = False
 
     column_list = [
         'name',
@@ -21,9 +50,11 @@ class MatchView(ModelView):
     ]
 
 
-class MatchResultView(ModelView):
+class MatchResultView(NonEditableModelView):
 
     can_view_details = True
+    can_edit = False
+
     column_filters = [
         'player',
         'score',
@@ -47,7 +78,7 @@ admin.add_view(ModelView(
     name='Profiles',
     endpoint='profiles',
 ))
-admin.add_view(ModelView(
+admin.add_view(PlayerView(
     models.Player,
     current_session,
     name='Players',
@@ -65,13 +96,13 @@ admin.add_view(MatchResultView(
     name='Match Results',
     endpoint='matchresults',
 ))
-admin.add_view(ModelView(
+admin.add_view(NonEditableModelView(
     models.Event,
     current_session,
     name='Events',
     endpoint='events',
 ))
-admin.add_view(ModelView(
+admin.add_view(NonEditableModelView(
     models.Tournament,
     current_session,
     name='Tournaments',
