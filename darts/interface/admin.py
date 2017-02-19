@@ -68,6 +68,7 @@ class MatchResultView(NonEditableModelView):
 
     column_filters = [
         'player',
+        'match',
         'score',
         'average',
         'oneeighties',
