@@ -5,6 +5,7 @@ from flask_sqlalchemy_session import current_session
 
 from darts import models, settings, sim
 from .extensions import nav
+from .forms import ProfileForm
 
 
 interface = flask.Blueprint('interface', __name__)
@@ -87,50 +88,43 @@ def view_simulation(id):
     return flask.render_template('view_simulation.html')
 
 
-class ProfileView(flask.views.MethodView):
+@interface.route('/profiles/', methods=['GET', 'POST'])
+def list_profiles():
 
-    def get(self):
+    page = flask.request.args.get('page', type=int, default=1)
 
-        page = flask.request.args.get('page', type=int, default=1)
+    query = current_session.query(models.Profile)
 
-        query = current_session.query(models.Profile)
+    profiles = (
+        query.offset(settings.PROFILES_PER_PAGE * (page - 1))
+        .limit(settings.PROFILES_PER_PAGE)
+    )
 
-        profiles = (
-            query.offset(settings.PROFILES_PER_PAGE * (page - 1))
-            .limit(settings.PROFILES_PER_PAGE)
-        )
+    pagination = Pagination(
+        page=page,
+        per_page=settings.PROFILES_PER_PAGE,
+        total=query.count(),
+        record_name='profiles',
+        css_framework='bootstrap3',
+    )
 
-        pagination = Pagination(
-            page=page,
-            per_page=settings.PROFILES_PER_PAGE,
-            total=query.count(),
-            record_name='profiles',
-            css_framework='bootstrap3',
-        )
+    form = ProfileForm()
 
-        return flask.render_template(
-            'list_profiles.html',
-            pagination=pagination,
-            profiles=profiles,
-        )
-
-    def post(self):
-
-        form = flask.request.form.as_dict()
-
-        profile = models.Profile(**form)
+    if form.validate_on_submit():
+        data = form.data.copy()
+        data.pop('csrf_token', None)
+        profile = models.Profile(**data)
         current_session.add(profile)
         current_session.commit()
+        return flask.redirect(flask.url_for('.view_profile', id=profile.id))
 
-        return flask.redirect(
-            flask.url_for('.view_profile', id=profile.id),
-        )
-
-
-interface.add_url_rule(
-    '/profiles/',
-    view_func=ProfileView.as_view('list_profiles'),
-)
+    return flask.render_template(
+        'list_profiles.html',
+        form=form,
+        pagination=pagination,
+        profiles=profiles,
+        show_modal=flask.request.method == "POST",
+    )
 
 
 @interface.route('/profiles/<int:id>/')
