@@ -7,6 +7,7 @@ from darts import models
 
 class NonEditableModelView(ModelView):
 
+    can_export = True
     can_view_details = True
     can_delete = False
     can_edit = False
