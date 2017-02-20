@@ -18,6 +18,9 @@ NEWSPIDER_MODULE = 'darts.scraper.spiders'
 DATABASE_URL = 'postgresql://darts:darts@localhost/darts'
 SECRET_KEY = '-8@a4n0{cK576B0oUH_M++Xo[]]pr8'
 
+SIMULATIONS_PER_PAGE = 20
+PROFILES_PER_PAGE = 20
+
 SLACK_API_TOKEN = None
 SLACK_BOT_NAME = 'dartsbot'
 
