@@ -12,50 +12,52 @@
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
 
-    <script type="javascript" src="{{ url_for('static', filename='vendor/js/jquery-3.1.1.min.js') }}"></script>
-    <script type="javascript" src="{{ url_for('static', filename='vendor/js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/js/jquery-3.1.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/js/bootstrap.min.js') }}"></script>
+
     {% block head %}
     {% endblock %}
   </head>
+
   <body>
 
-  <nav class="navbar navbar-inverse navbar-static-top">
-    <div class="container container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="{{ url_for('.index') }}" title="Darts Simulator">Darts Simulator</a>
-      </div>
+    <nav class="navbar navbar-inverse navbar-static-top">
+      <div class="container container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="{{ url_for('.index') }}" title="Darts Simulator">Darts Simulator</a>
+        </div>
 
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
-        <ul class="nav navbar-nav">
-          {% for item in nav.top_left %}
-          <li class="{{ 'active' if item.is_active else '' }}">{{ item }}</li>
-          {% endfor %}
-        </ul>
-
-        <ul class="nav navbar-nav navbar-right">
-            {% for item in nav.top_right %}
-            {% if item.items %}
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ item.label }} <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                {% for child in item.items %}
-                <li>{{ child }}</li>
-                {% endfor %}
-              </ul>
-            </li>
-            {% else %}
-            <li class="{{ 'active' if item.is_active else ''}}">{{ item }}</li>
-            {% endif %}
+          <ul class="nav navbar-nav">
+            {% for item in nav.top_left %}
+            <li class="{{ 'active' if item.is_active else '' }}">{{ item }}</li>
             {% endfor %}
           </ul>
 
-      </div>
-    </div><!-- /.container-fluid -->
-  </nav>
+          <ul class="nav navbar-nav navbar-right">
+              {% for item in nav.top_right %}
+              {% if item.items %}
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ item.label }} <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  {% for child in item.items %}
+                  <li>{{ child }}</li>
+                  {% endfor %}
+                </ul>
+              </li>
+              {% else %}
+              <li class="{{ 'active' if item.is_active else ''}}">{{ item }}</li>
+              {% endif %}
+              {% endfor %}
+            </ul>
 
-  {% block body %}
-  {% endblock %}
+        </div>
+      </div><!-- /.container-fluid -->
+    </nav>
+
+    {% block body %}
+    {% endblock %}
 
   </body>
 </html>
