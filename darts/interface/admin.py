@@ -1,4 +1,5 @@
 from flask_admin import Admin, AdminIndexView
+from flask_admin.base import MenuLink
 from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy_session import current_session
 
@@ -82,7 +83,7 @@ class MatchResultView(NonEditableModelView):
 
 
 admin = Admin(
-    name='Darts Simulator',
+    name='Darts Simulator - Admin',
     template_mode='bootstrap3',
     index_view=AdminIndexView(),
 )
@@ -123,3 +124,5 @@ admin.add_view(NonEditableModelView(
     name='Tournaments',
     endpoint='tournaments',
 ))
+
+admin.add_link(MenuLink(name='Back To Simulator', endpoint='interface.index'))
