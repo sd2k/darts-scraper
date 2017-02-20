@@ -4,41 +4,53 @@ from wtforms.validators import InputRequired, NumberRange, ValidationError
 
 
 def validate_trebles(form, field):
-    total = (
-        form.treble_hit_pct.data +
-        form.treble_miss_pct.data +
-        form.treble_big_miss_pct.data
-    )
-    if total != 100:
-        raise ValidationError('Treble percentages must sum to 100%')
+    try:
+        total = (
+            form.treble_hit_pct.data +
+            form.treble_miss_pct.data +
+            form.treble_big_miss_pct.data
+        )
+        if total != 100:
+            raise ValidationError('Treble percentages must sum to 100%')
+    except TypeError:
+        pass
 
 
 def validate_bullseyes(form, field):
-    total = (
-        form.bullseye_hit_pct.data +
-        form.bullseye_miss_pct.data
-    )
-    if total != 100:
-        raise ValidationError('Bullseye percentages must sum to 100%')
+    try:
+        total = (
+            form.bullseye_hit_pct.data +
+            form.bullseye_miss_pct.data
+        )
+        if total != 100:
+            raise ValidationError('Bullseye percentages must sum to 100%')
+    except TypeError:
+        pass
 
 
 def validate_outer_bulls(form, field):
-    total = (
-        form.outer_bull_hit_pct.data +
-        form.outer_bull_miss_pct.data
-    )
-    if total != 100:
-        raise ValidationError('Outer bull percentages must sum to 100%')
+    try:
+        total = (
+            form.outer_bull_hit_pct.data +
+            form.outer_bull_miss_pct.data
+        )
+        if total != 100:
+            raise ValidationError('Outer bull percentages must sum to 100%')
+    except TypeError:
+        pass
 
 
 def validate_doubles(form, field):
-    total = (
-        form.double_hit_pct.data +
-        form.double_miss_inside_pct.data +
-        form.double_miss_outside_pct.data
-    )
-    if total != 100:
-        raise ValidationError('Treble percentages must sum to 100%')
+    try:
+        total = (
+            form.double_hit_pct.data +
+            form.double_miss_inside_pct.data +
+            form.double_miss_outside_pct.data
+        )
+        if total != 100:
+            raise ValidationError('Treble percentages must sum to 100%')
+    except TypeError:
+        pass
 
 
 class ProfileForm(FlaskForm):
