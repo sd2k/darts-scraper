@@ -256,23 +256,23 @@ class Profile(Base):
     __tablename__ = 'profiles'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String, nullable=False)
 
-    treble_hit_pct = Column(Numeric(4, 2))
-    treble_miss_pct = Column(Numeric(4, 2))
-    treble_big_miss_pct = Column(Numeric(4, 2))
+    treble_hit_pct = Column(Numeric(4, 2), nullable=False)
+    treble_miss_pct = Column(Numeric(4, 2), nullable=False)
+    treble_big_miss_pct = Column(Numeric(4, 2), nullable=False)
 
-    bullseye_hit_pct = Column(Numeric(4, 2))
-    bullseye_miss_pct = Column(Numeric(4, 2))
+    bullseye_hit_pct = Column(Numeric(4, 2), nullable=False)
+    bullseye_miss_pct = Column(Numeric(4, 2), nullable=False)
 
-    outer_bull_hit_pct = Column(Numeric(4, 2))
-    outer_bull_miss_pct = Column(Numeric(4, 2))
+    outer_bull_hit_pct = Column(Numeric(4, 2), nullable=False)
+    outer_bull_miss_pct = Column(Numeric(4, 2), nullable=False)
 
     single_hit_pct = 100.00
 
-    double_hit_pct = Column(Numeric(4, 2))
-    double_miss_inside_pct = Column(Numeric(4, 2))
-    double_miss_outside_pct = Column(Numeric(4, 2))
+    double_hit_pct = Column(Numeric(4, 2), nullable=False)
+    double_miss_inside_pct = Column(Numeric(4, 2), nullable=False)
+    double_miss_outside_pct = Column(Numeric(4, 2), nullable=False)
 
     def __repr__(self):
         return "<Profile(name='%s')>" % self.name
