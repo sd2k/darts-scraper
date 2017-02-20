@@ -21,6 +21,8 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
+    app.config['DEBUG'] = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     # Reset root logger
     for handler in logging.root.handlers[:]:
