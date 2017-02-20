@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
+import enum
 
 from sqlalchemy import (
     Boolean,
     Column,
     Date,
     DateTime,
+    Enum,
     Float,
     ForeignKey,
     Integer,
     Numeric,
     String,
 )
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.sql import func
 
 from darts.db import Base
@@ -273,3 +276,63 @@ class Profile(Base):
 
     def __repr__(self):
         return "<Profile(name='%s')>" % self.name
+
+
+class DartEnum(enum.IntEnum):
+    one = 1
+    two = 2
+    three = 3
+
+
+class ScoreLookup(Base):
+
+    __tablename__ = 'score_lookups'
+
+    score = Column(Integer, primary_key=True)
+    dart = Column(Enum(DartEnum, name='dart_numbers'), primary_key=True)
+
+    shot_type = Column(Enum(
+        'single',
+        'treble',
+        'bull',
+        'outer_bull',
+        'double',
+        name='shot_types',
+    ), nullable=False)
+
+    hit_points = Column(Integer, nullable=False)
+    miss_points = Column(Integer, nullable=True)
+    big_miss_points = Column(Integer, nullable=True)
+
+    def __repr__(self):
+        return "<ScoreLookup(score='%s', dart='%s')>" % (
+            self.score,
+            self.dart,
+        )
+
+    def __str__(self):
+        return repr(self)
+
+
+class Simulation(Base):
+
+    __tablename__ = 'simulations'
+
+    id = Column(Integer, primary_key=True)
+    profile_id = Column(Integer, ForeignKey('profiles.id'))
+    iterations = Column(Integer, nullable=False, default=10000)
+    results = Column(ARRAY(Integer), nullable=False)
+
+    profile = relationship('Profile')
+
+    def __repr__(self):
+        return "<Simulation(profile_id='%s', iterations='%s')>" % (
+            self.profile_id,
+            self.iterations,
+        )
+
+    def __str__(self):
+        return "Simulation of profile {} ({} iterations)".format(
+            self.profile.name,
+            self.iterations,
+        )
