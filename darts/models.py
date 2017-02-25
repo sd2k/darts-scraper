@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import enum
 
+from cached_property import cached_property
+import numpy as np
 from sqlalchemy import (
     Boolean,
     Column,
@@ -13,7 +15,7 @@ from sqlalchemy import (
     Numeric,
     String,
 )
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import backref, relationship
@@ -314,16 +316,40 @@ class ScoreLookup(Base):
         return repr(self)
 
 
-class Simulation(Base):
+class PlayerSimulation(Base):
 
-    __tablename__ = 'simulations'
+    __tablename__ = 'player_simulations'
 
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profiles.id'))
     iterations = Column(Integer, nullable=False, default=10000)
-    results = Column(ARRAY(Integer), nullable=False)
+    results = Column(JSONB, nullable=False)
 
     profile = relationship('Profile')
+
+    @cached_property
+    def leg_averages(self):
+        return [np.mean(leg) for leg in self.results]
+
+    @cached_property
+    def leg_180s(self):
+        return [leg.count(180) for leg in self.results]
+
+    @cached_property
+    def three_dart_average(self):
+        return np.mean(self.leg_averages)
+
+    @cached_property
+    def three_dart_std_dev(self):
+        return np.std(self.leg_averages)
+
+    @cached_property
+    def avg_180s(self):
+        return np.mean(self.leg_180s)
+
+    @cached_property
+    def std_180s(self):
+        return np.std(self.leg_180s)
 
     def __repr__(self):
         return "<Simulation(profile_id='%s', iterations='%s')>" % (

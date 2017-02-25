@@ -5,7 +5,7 @@ from flask_sqlalchemy_session import current_session
 
 from darts import models, settings, sim
 from .extensions import nav
-from .forms import ProfileForm
+from .forms import ProfileForm, PlayerSimulationForm
 
 
 interface = flask.Blueprint('interface', __name__)
@@ -15,7 +15,7 @@ interface = flask.Blueprint('interface', __name__)
 def add_navigation():
     nav.Bar('top_left', [
         nav.Item('Home', 'interface.index'),
-        nav.Item('Simulations', 'interface.list_simulations'),
+        nav.Item('Player Simulations', 'interface.list_player_simulations'),
         nav.Item('Profiles', 'interface.list_profiles')
     ])
 
@@ -29,63 +29,79 @@ def index():
     return flask.render_template('index.html')
 
 
-class SimulationView(flask.views.MethodView):
+@interface.route('/playersimulations/', methods=['GET', 'POST'])
+def list_player_simulations():
 
-    def get(self):
+    page = flask.request.args.get('page', type=int, default=1)
 
-        page = flask.request.args.get('page', type=int, default=1)
+    query = current_session.query(models.PlayerSimulation)
 
-        query = current_session.query(models.Simulation)
+    simulations = (
+        query.offset(settings.SIMULATIONS_PER_PAGE * (page - 1))
+        .limit(settings.SIMULATIONS_PER_PAGE)
+    )
 
-        simulations = (
-            query.offset(settings.SIMULATIONS_PER_PAGE * (page - 1))
-            .limit(settings.SIMULATIONS_PER_PAGE)
+    pagination = Pagination(
+        page=page,
+        per_page=settings.SIMULATIONS_PER_PAGE,
+        total=query.count(),
         )
 
-        pagination = Pagination(
-            page=page,
-            per_page=settings.SIMULATIONS_PER_PAGE,
-            total=query.count(),
-            record_name='simulations',
-            css_framework='bootstrap3',
-        )
+    form = PlayerSimulationForm()
 
-        return flask.render_template(
-            'list_simulations.html',
-            pagination=pagination,
-            simulations=simulations,
-        )
+    form.profile_id.choices = [
+        (profile.id, str(profile))
+        for profile in current_session.query(models.Profile)
+    ]
 
-    def post(self):
-        sim_details = flask.request.form.as_dict()
+    if form.validate_on_submit():
+        form_data = form.data.copy()
+        form_data.pop('csrf_token', None)
         profile = (
             current_session.query(models.Profile)
-            .filter(models.Profiles.id == sim_details['profile_id'])
+            .filter(models.Profile.id == form_data['profile_id'])
             .one()
         )
         lookups = sim.load_lookups(current_session)
-        simulation = models.Simulation(
+        simulation = models.PlayerSimulation(
             profile=profile,
-            iterations=sim_details['iterations'],
+            iterations=form_data['iterations'],
         )
-        simulation.results = sim.simulate_profile(profile, *lookups)
+        simulation.results = sim.simulate_profile(
+            profile,
+            *lookups,
+            iterations=form_data['iterations']
+        )
         current_session.add(simulation)
         current_session.commit()
-
         return flask.redirect(
-            flask.url_for('.view_simulation', id=simulation.id)
+            flask.url_for('.view_player_simulation', id=simulation.id)
         )
 
+    return flask.render_template(
+        'list_player_simulations.html',
+        form=form,
+        pagination=pagination,
+        simulations=simulations,
+        show_modal=flask.request.method == 'POST',
+    ), 200 if flask.request.method == 'GET' else 400
 
-interface.add_url_rule(
-    '/simulations/',
-    view_func=SimulationView.as_view('list_simulations'),
-)
+
+@interface.route('/playersimulations/<int:id>/')
+def view_player_simulation(id):
+    simulation = (
+        current_session.query(models.PlayerSimulation)
+        .filter(models.PlayerSimulation.id == id)
+        .one()
+    )
+    return flask.render_template(
+        'view_player_simulation.html',
+        simulation=simulation,
+    )
 
 
-@interface.route('/simulations/<int:id>/')
-def view_simulation(id):
-    return flask.render_template('view_simulation.html')
+
+
 
 
 @interface.route('/profiles/', methods=['GET', 'POST'])

@@ -277,7 +277,7 @@ def simulate_profile(
     three_dart_totals = []
     for i in xrange(iterations):
         sim = simulate_leg(profile, score_shot_types, score_points, total)
-        three_dart_totals.extend(sim)
+        three_dart_totals.append(sim)
         if i % 1000 == 0:
             print('ran %s iterations' % i)
 
