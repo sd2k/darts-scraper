@@ -139,8 +139,8 @@ def list_profiles():
         form=form,
         pagination=pagination,
         profiles=profiles,
-        show_modal=flask.request.method == "POST",
-    ), 200 if flask.request.method == "GET" else 400
+        show_modal=flask.request.method == 'POST',
+    ), 200 if flask.request.method == 'GET' else 400
 
 
 @interface.route('/profiles/<int:id>/')
