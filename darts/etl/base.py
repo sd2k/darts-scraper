@@ -154,8 +154,9 @@ class QueryToSlackReportBase(
     query = NotImplementedProperty
     'Query to run on Postgres'
 
-    transform = lambda x: x
-    'Any transforms to do to the dataset'
+    def transform(x):
+        'Any transformations to do to the dataset'
+        return x
 
     slack_channel = '#darts'
 
