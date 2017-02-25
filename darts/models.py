@@ -279,6 +279,9 @@ class Profile(Base):
     def __repr__(self):
         return "<Profile(name='%s')>" % self.name
 
+    def __str__(self):
+        return self.name
+
 
 class DartEnum(enum.IntEnum):
     one = 1
