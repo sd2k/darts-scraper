@@ -1,7 +1,5 @@
 """
 Simulations of 1-player matches.
-
-TODO: Add number of 180s.
 """
 import random
 
