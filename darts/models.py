@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import collections
 import enum
 
 from cached_property import cached_property
@@ -357,6 +358,32 @@ class PlayerSimulation(Base):
     @cached_property
     def leg_darts(self):
         return [leg['all_darts'] for leg in self.results]
+
+    @cached_property
+    def three_dart_average_hist(self):
+        hist = np.histogram(self.leg_averages, bins='auto')
+        ticks = [
+            str(round(edge, 1)) for edge in hist[1]
+        ]
+        labels = [
+            '-'.join(x) for x in zip(ticks, ticks[1:])
+        ]
+        return hist[0].tolist(), labels
+
+    @cached_property
+    def three_dart_scores(self):
+        counter = collections.Counter(
+            sum(dart[2] for dart in three_darts)
+            for leg in self.leg_darts
+            for three_darts in leg
+        )
+        scores = []
+        labels = []
+        for x in xrange(181):
+            scores.append(counter[x])
+            labels.append(x)
+
+        return scores, labels
 
     def __repr__(self):
         return "<Simulation(profile_id='%s', iterations='%s')>" % (

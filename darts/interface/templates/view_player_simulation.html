@@ -4,7 +4,7 @@
 
 {% block body %}
 
-<div class="container">
+<div class="container-fluid">
   <div class="header">
     <h1>Simulation Details <small>for {{ simulation.profile.name }} Profile</small></h1>
   </div>
@@ -20,7 +20,6 @@
 
       <!-- Summary tab -->
       <div role="tabpanel" class="tab-pane active" id="summary">
-        <h2>Summary</h2>
         <div class="row top-buffer">
           <div class="col-md-6">
             <dl>
@@ -52,12 +51,28 @@
 
       <!-- Details tab -->
       <div role="tabpanel" class="tab-pane" id="details">
-        <h2>Details</h2>
       </div>
 
       <!-- Plots tab -->
       <div role="tabpanel" class="tab-pane" id="plots">
-        <h2>Plots</h2>
+        <div class="container-fluid">
+          <div class="row">
+
+            <div class="col-md-4">
+              <h5 class="text-center">Distribution of Three Dart Averages <small>across all simulated legs</small></h5>
+              <div class="center-block">
+                <canvas id="three-dart-average-plot" height="500" width="500"></canvas>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <h5 class="text-center">Distribution of Three Dart scores <small>across all simulated three-dart-throws (total: {{ simulation.three_dart_scores[0]|sum }})</small></h5>
+              <div class="center-block">
+                <canvas id="three-dart-scores-plot" height="500" width="1000"></canvas>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
 
       <!-- Exports tab -->
@@ -66,5 +81,81 @@
       </div>
 
     </div>
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" src="{{ url_for('static', filename='vendor/js/Chart.min.js') }}"></script>
+
+<script type="text/javascript">
+
+  var threeDartAverageContext = $("#three-dart-average-plot");
+  var threeDartAverageData = {{ simulation.three_dart_average_hist[0]|tojson|safe }};
+  var threeDartAverageLabels = {{ simulation.three_dart_average_hist[1]|tojson|safe }};
+
+  var threeDartAverageHistogram = new Chart(threeDartAverageContext, {
+    type: 'bar',
+    data: {
+      labels: threeDartAverageLabels,
+      datasets: [{
+        label: 'frequency of three dart average',
+        data: threeDartAverageData,
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      animation: false,
+      maintainAspectRatio: false,
+      responsive: false,
+      scales: {
+        xAxes: [{
+          categoryPercentage: 1.0,
+          barPercentage: 1.0
+        }],
+        yAxes: [{
+          ticks: {
+            beginAtZero:true
+          }
+        }]
+      }
+    }
+  });
+
+
+  var threeDartScoresContext = $("#three-dart-scores-plot");
+  var threeDartScoresData = {{ simulation.three_dart_scores[0]|tojson|safe }};
+  var threeDartScoresLabels = {{ simulation.three_dart_scores[1]|tojson|safe }};
+
+  var threeDartScoresBarPlot = new Chart(threeDartScoresContext, {
+    type: 'bar',
+    data: {
+      labels: threeDartScoresLabels.map(function(x) {
+        return x % 10 ? "" : x.toString()
+      }),
+      datasets: [{
+        label: 'frequency of three dart totals',
+        data: threeDartScoresData,
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      animation: false,
+      maintainAspectRatio: false,
+      responsive: false,
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+
+</script>
 
 {% endblock %}

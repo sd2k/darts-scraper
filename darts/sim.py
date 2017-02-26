@@ -289,8 +289,7 @@ class LegStats:
     def create_rows(self, *three_dart_stats):
         for darts in three_dart_stats:
             rows = zip(darts.shot_types, darts.shot_results, darts.points_scored)  # noqa
-            for row in rows:
-                yield row[0], row[1], row[2]
+            yield [(row[0].value, row[1].value, row[2]) for row in rows]
 
     def as_dict(self):
         return dict(
