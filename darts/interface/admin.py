@@ -48,6 +48,18 @@ class PlayerView(NonEditableModelView):
     ]
 
 
+class ScoreLookupView(ModelView):
+
+    column_list = [
+        'score',
+        'dart',
+        'shot_type',
+        'hit_points',
+        'miss_points',
+        'big_miss_points',
+    ]
+
+
 class MatchView(NonEditableModelView):
 
     can_view_details = True
@@ -94,6 +106,12 @@ admin.add_view(ModelView(
     name='Profiles',
     endpoint='profiles',
 ))
+admin.add_view(ScoreLookupView(
+    models.ScoreLookup,
+    current_session,
+    name='Score Lookup',
+    endpoint='scorelookups',
+))
 admin.add_view(PlayerView(
     models.Player,
     current_session,
@@ -123,12 +141,6 @@ admin.add_view(NonEditableModelView(
     current_session,
     name='Tournaments',
     endpoint='tournaments',
-))
-admin.add_view(ModelView(
-    models.ScoreLookup,
-    current_session,
-    name='Score Lookup',
-    endpoint='scorelookups',
 ))
 
 admin.add_link(MenuLink(name='Back To Simulator', endpoint='interface.index'))
