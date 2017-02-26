@@ -124,5 +124,11 @@ admin.add_view(NonEditableModelView(
     name='Tournaments',
     endpoint='tournaments',
 ))
+admin.add_view(ModelView(
+    models.ScoreLookup,
+    current_session,
+    name='Score Lookup',
+    endpoint='scorelookups',
+))
 
 admin.add_link(MenuLink(name='Back To Simulator', endpoint='interface.index'))
