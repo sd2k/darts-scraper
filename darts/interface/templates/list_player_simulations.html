@@ -49,6 +49,7 @@
           <th>Iterations</th>
           <th>Avg Three Dart Average</th>
           <th>Avg 180s per leg</th>
+          <th>Details</th>
         </tr>
       </thead>
 
@@ -59,6 +60,7 @@
           <th>{{ sim.iterations }}</th>
           <th>{{ sim.three_dart_average | round(2) }} (Std Dev: {{ sim.three_dart_std_dev | round(2) }})</th>
           <th>{{ sim.avg_180s | round(2) }} (Std Dev: {{ sim.std_180s | round(2) }})
+          <th><a href="{{ url_for('.view_player_simulation', id=sim.id) }}">View details</a></th>
         </tr>
       {% endfor %}
       </tbody>
