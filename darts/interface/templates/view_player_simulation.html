@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Simulation of {{ simulation.profile.name }} - Darts Simulator{% endblock %}
+
+{% block body %}
+
+<div class="container">
+  <div class="header">
+    <h1>Simulation Details <small>for {{ simulation.profile.name }} Profile</small></h1>
+  </div>
+
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
+      <li role="presentation"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Leg Details</a></li>
+      <li role="presentation"><a href="#plots" aria-controls="plots" role="tab" data-toggle="tab">Plots</a></li>
+      <li role="presentation"><a href="#export" aria-controls="export" role="tab" data-toggle="tab">Export</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+      <!-- Summary tab -->
+      <div role="tabpanel" class="tab-pane active" id="summary">
+        <h2>Summary</h2>
+        <div class="row top-buffer">
+          <div class="col-md-6">
+            <dl>
+              <dt>Profile name: </dt>
+              <dd>{{ simulation.profile.name }}</dd>
+
+              <dt>Three dart average: </dt>
+              <dd>{{ simulation.three_dart_average }}</dd>
+
+              <dt>Average 180s per leg: </dt>
+              <dd>{{ simulation.avg_180s }}</dd>
+            </dl>
+          </div>
+
+          <div class="col-md-6">
+            <dl>
+              <dt>Iterations: </dt>
+              <dd>{{ simulation.iterations }}</dd>
+
+              <dt>Three dart avg standard deviation: </dt>
+              <dd>{{ simulation.three_dart_std_dev }}</dd>
+
+              <dt>Average 180s per leg standard deviation</dt>
+              <dd>{{ simulation.std_180s }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details tab -->
+      <div role="tabpanel" class="tab-pane" id="details">
+        <h2>Details</h2>
+      </div>
+
+      <!-- Plots tab -->
+      <div role="tabpanel" class="tab-pane" id="plots">
+        <h2>Plots</h2>
+      </div>
+
+      <!-- Exports tab -->
+      <div role="tabpanel" class="tab-pane" id="export">
+        <h2>Export</h2>
+      </div>
+
+    </div>
+
+{% endblock %}
