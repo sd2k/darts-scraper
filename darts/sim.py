@@ -5,7 +5,6 @@ import random
 
 import enum
 import numpy as np
-import pandas as pd
 
 from darts import models
 
