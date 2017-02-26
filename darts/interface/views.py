@@ -67,11 +67,15 @@ def list_player_simulations():
             profile=profile,
             iterations=form_data['iterations'],
         )
-        simulation.results = sim.simulate_profile(
+        sim_results = sim.simulate_profile(
             profile,
             *lookups,
             iterations=form_data['iterations']
         )
+        simulation.results = [
+            leg.as_dict()
+            for leg in sim_results
+        ]
         current_session.add(simulation)
         current_session.commit()
         return flask.redirect(

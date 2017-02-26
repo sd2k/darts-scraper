@@ -332,11 +332,11 @@ class PlayerSimulation(Base):
 
     @cached_property
     def leg_averages(self):
-        return [np.mean(leg) for leg in self.results]
+        return [leg['three_dart_average'] for leg in self.results]
 
     @cached_property
     def leg_180s(self):
-        return [leg.count(180) for leg in self.results]
+        return [leg['num_180s'] for leg in self.results]
 
     @cached_property
     def three_dart_average(self):
@@ -353,6 +353,10 @@ class PlayerSimulation(Base):
     @cached_property
     def std_180s(self):
         return np.std(self.leg_180s)
+
+    @cached_property
+    def leg_darts(self):
+        return [leg['all_darts'] for leg in self.results]
 
     def __repr__(self):
         return "<Simulation(profile_id='%s', iterations='%s')>" % (
