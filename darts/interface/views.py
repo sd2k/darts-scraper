@@ -16,7 +16,8 @@ def add_navigation():
     nav.Bar('top_left', [
         nav.Item('Home', 'interface.index'),
         nav.Item('Player Simulations', 'interface.list_player_simulations'),
-        nav.Item('Profiles', 'interface.list_profiles')
+        nav.Item('Profiles', 'interface.list_profiles'),
+        nav.Item('Players', 'interface.list_players')
     ])
 
     nav.Bar('top_right', [
@@ -155,3 +156,38 @@ def view_profile(id):
         .one()
     )
     return flask.render_template('view_profile.html', profile=profile)
+
+
+@interface.route('/players/')
+def list_players():
+
+    page = flask.request.args.get('page', type=int, default=1)
+    query = current_session.query(models.Player)
+    players = (
+        query.offset(settings.PROFILES_PER_PAGE * (page - 1))
+        .limit(settings.PROFILES_PER_PAGE)
+    )
+
+    pagination = Pagination(
+        page=page,
+        per_page=settings.PROFILES_PER_PAGE,
+        total=query.count(),
+        record_name='players',
+        css_framework='bootstrap3',
+    )
+
+    return flask.render_template(
+        'list_players.html',
+        pagination=pagination,
+        players=players,
+    )
+
+
+@interface.route('/players/<int:id>/')
+def view_player(id):
+    player = (
+        current_session.query(models.Player)
+        .filter(models.Player.id == id)
+        .one()
+    )
+    return flask.render_template('view_player.html', player=player)

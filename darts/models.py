@@ -12,9 +12,11 @@ from sqlalchemy import (
     Enum,
     Float,
     ForeignKey,
+    inspect,
     Integer,
     Numeric,
     String,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -110,6 +112,48 @@ class Player(Base):
         lazy='dynamic'
     )
     fixtures = association_proxy('fixture_players', 'fixture')
+
+    def checkout_percent_last_n(self, n):
+        q = """
+            SELECT AVG(checkout_percent) AS checkout_percent
+            FROM (
+                SELECT checkout_percent
+                FROM match_results mr
+                JOIN matches m ON mr.match_id = m.id
+                JOIN players p ON mr.player_id = p.id
+                WHERE p.id = :id
+                    AND mr.checkout_percent IS NOT NULL
+                LIMIT :limit
+            ) AS sub
+        """
+        return (
+            inspect(self).session
+            .query('checkout_percent')
+            .from_statement(text(q))
+            .params(id=self.id, limit=n)
+            .scalar()
+        )
+
+    def three_dart_avg_last_n(self, n):
+        q = """
+            SELECT AVG(average) AS average
+            FROM (
+                SELECT average
+                FROM match_results mr
+                JOIN matches m ON mr.match_id = m.id
+                JOIN players p ON mr.player_id = p.id
+                WHERE p.id = :id
+                    AND mr.average IS NOT NULL
+                LIMIT :limit
+            ) AS sub
+        """
+        return (
+            inspect(self).session
+            .query('average')
+            .from_statement(text(q))
+            .params(id=self.id, limit=n)
+            .scalar()
+        )
 
     def __repr__(self):
         return "<Player(id='%s', name='%s', pdc_ranking='%s')>" % (
