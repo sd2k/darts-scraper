@@ -1,6 +1,7 @@
 """
 Simulations of 1-player matches.
 """
+import logging
 import random
 
 import enum
@@ -8,6 +9,9 @@ import numpy as np
 
 from darts import models
 from darts.models import ShotResultEnum, ShotTypeEnum
+
+
+log = logging.getLogger(__name__)
 
 
 DEFAULT_SHOT_TYPE = ShotTypeEnum.Treble
@@ -145,6 +149,7 @@ class DartThrow:
             score_shot_types,
             score_points,
             ):
+        log.debug('Score is {}, dart id is {}'.format(start_score, dart_number))
         self.start_score = start_score
         self.dart_number = dart_number
         self.shot_type = get_shot_type(
@@ -152,13 +157,16 @@ class DartThrow:
             dart_number,
             score_shot_types,
         )
+        log.debug('Aiming for {}'.format(self.shot_type.name))
         self.shot_result = get_result(self.shot_type, profile)
+        log.debug('Shot {}!'.format(self.shot_result.name))
         self.points_scored = get_points(
             start_score,
             dart_number,
             self.shot_result,
             score_points,
         )
+        log.debug('Points scored: {}'.format(self.points_scored))
 
 
 class ThreeDartStats:
@@ -234,16 +242,17 @@ def throw_three_darts(current_score, profile, score_shot_types, score_points):
     three_dart_total = 0
     three_dart_stats = []
 
+    log.debug('Starting three dart turn on {} points'.format(current_score))
     for dart_id in [1, 2, 3]:
         dart_throw = DartThrow(
-            current_score,
+            new_score,
             dart_id,
             profile,
             score_shot_types,
             score_points,
         )
 
-        new_score = current_score - dart_throw.points_scored
+        new_score = new_score - dart_throw.points_scored
         three_dart_stats.append(dart_throw)
         three_dart_total += dart_throw.points_scored
 
@@ -256,7 +265,7 @@ def throw_three_darts(current_score, profile, score_shot_types, score_points):
 
         else:
             # score is either 1 or < 0, so bust.
-            return (current_score, ThreeDartStats(*[]))
+            return (new_score, ThreeDartStats(*[]))
 
     return (new_score, ThreeDartStats(*three_dart_stats))
 
