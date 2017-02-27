@@ -403,16 +403,18 @@ class PlayerSimulation(Base):
     def all_darts(self):
         def darts():
             for leg_id, leg in enumerate(self.results):
+                score = 501
                 for three_darts in leg['all_darts']:
                     for dart_id, dart in enumerate(three_darts):
                         yield (
                             leg_id + 1,
-                            501,
+                            score,
                             dart_id + 1,
                             ShotTypeEnum(dart[0]).name,
                             ShotResultEnum(dart[1]).name,
                             dart[2],
                         )
+                        score -= dart[2]
         return list(darts())
 
     def __repr__(self):
