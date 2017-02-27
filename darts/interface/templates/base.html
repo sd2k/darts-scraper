@@ -12,22 +12,24 @@
 
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
 
-    <script src="{{ url_for('static', filename='vendor/js/jquery-3.1.1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/js/bootstrap.min.js') }}"></script>
-
     {% block head %}
     {% endblock %}
   </head>
 
   <body>
-
     <nav class="navbar navbar-inverse navbar-static-top">
-      <div class="container container-fluid">
+      <div class="container">
         <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle Navigation</span>
+            <span class="icon-bar">
+            <span class="icon-bar">
+            <span class="icon-bar">
+          </button>
           <a class="navbar-brand" href="{{ url_for('.index') }}" title="Darts Simulator">Darts Simulator</a>
         </div>
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse" id="navbar">
 
           <ul class="nav navbar-nav">
             {% for item in nav.top_left %}
@@ -50,15 +52,16 @@
               <li class="{{ 'active' if item.is_active else ''}}">{{ item }}</li>
               {% endif %}
               {% endfor %}
-            </ul>
-
+          </ul>
         </div>
-      </div><!-- /.container-fluid -->
-    </nav>
+      </nav>
+    </div><!-- /.container-fluid -->
 
     {% block body %}
     {% endblock %}
 
+    <script src="{{ url_for('static', filename='vendor/js/jquery-3.1.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/js/bootstrap.min.js') }}"></script>
     {% block javascript %}
     {% endblock %}
 

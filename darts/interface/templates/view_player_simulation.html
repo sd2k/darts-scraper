@@ -4,7 +4,6 @@
 
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/css/datatables.min.css') }}">
-    <script src="{{ url_for('static', filename='vendor/js/datatables.min.js') }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -174,6 +173,8 @@
 
 </script>
 
+<script src="{{ url_for('static', filename='vendor/js/datatables.min.js') }}"></script>
+
 <script type="text/javascript">
 $(document).ready(function() {
   var data = {{ simulation.all_darts|tojson|safe }};
@@ -181,7 +182,7 @@ $(document).ready(function() {
     buttons: ['csv'],
     data: data,
     deferRender: true,
-    dom: 'Bfrtip',
+    dom: 'Blfrtip',
   });
 })
 </script>
