@@ -162,7 +162,10 @@ def view_profile(id):
 def list_players():
 
     page = flask.request.args.get('page', type=int, default=1)
-    query = current_session.query(models.Player)
+    query = (
+        current_session.query(models.Player)
+        .order_by(models.Player.pdc_ranking, models.Player.name)
+    )
     players = (
         query.offset(settings.PROFILES_PER_PAGE * (page - 1))
         .limit(settings.PROFILES_PER_PAGE)
