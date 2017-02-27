@@ -2,6 +2,11 @@
 
 {% block title %}Simulation of {{ simulation.profile.name }} - Darts Simulator{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/css/datatables.min.css') }}">
+    <script src="{{ url_for('static', filename='vendor/js/datatables.min.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 
 <div class="container-fluid">
@@ -13,7 +18,7 @@
       <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
       <!-- <li role="presentation"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Leg Details</a></li> -->
       <li role="presentation"><a href="#plots" aria-controls="plots" role="tab" data-toggle="tab">Plots</a></li>
-      <li role="presentation"><a href="#export" aria-controls="export" role="tab" data-toggle="tab">Export</a></li>
+      <li role="presentation"><a href="#darts-data" aria-controls="darts-data" role="tab" data-toggle="tab">Darts Table</a></li>
     </ul>
 
     <div class="tab-content">
@@ -55,29 +60,40 @@
 
       <!-- Plots tab -->
       <div role="tabpanel" class="tab-pane" id="plots">
-        <div class="container-fluid">
-          <div class="row">
+        <div class="row">
 
-            <div class="col-md-4">
-              <h5 class="text-center">Distribution of Three Dart Averages <small>across all simulated legs</small></h5>
-              <div class="center-block">
-                <canvas id="three-dart-average-plot" height="500" width="500"></canvas>
-              </div>
+          <div class="col-md-4">
+            <h5 class="text-center">Distribution of Three Dart Averages <small>across all simulated legs</small></h5>
+            <div class="center-block">
+              <canvas id="three-dart-average-plot" height="500" width="500"></canvas>
             </div>
-            <div class="col-md-8">
-              <h5 class="text-center">Distribution of Three Dart scores <small>across all simulated three-dart-throws (total: {{ simulation.three_dart_scores[0]|sum }})</small></h5>
-              <div class="center-block">
-                <canvas id="three-dart-scores-plot" height="500" width="1000"></canvas>
-              </div>
-            </div>
-
           </div>
+          <div class="col-md-8">
+            <h5 class="text-center">Distribution of Three Dart scores <small>across all simulated three-dart-throws (total: {{ simulation.three_dart_scores[0]|sum }})</small></h5>
+            <div class="center-block">
+              <canvas id="three-dart-scores-plot" height="500" width="1000"></canvas>
+            </div>
+          </div>
+
         </div>
       </div>
 
       <!-- Exports tab -->
-      <div role="tabpanel" class="tab-pane" id="export">
-        <h2>Export</h2>
+      <div role="tabpanel" class="tab-pane" id="darts-data">
+        <div class="top-buffer container">
+            <table id="raw-table" class="table display nowrap" width="100%">
+              <thead>
+                <tr>
+                  <th>Leg #</th>
+                  <th>Starting score</th>
+                  <th>Dart Number</th>
+                  <th>Shot Type</th>
+                  <th>Result</th>
+                  <th>Points</th>
+                </tr>
+              </thead>
+            </table>
+        </div>
       </div>
 
     </div>
@@ -156,6 +172,18 @@
     }
   });
 
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  var data = {{ simulation.all_darts|tojson|safe }};
+  $('#raw-table').DataTable({
+    buttons: ['csv'],
+    data: data,
+    deferRender: true,
+    dom: 'Bfrtip',
+  });
+})
 </script>
 
 {% endblock %}

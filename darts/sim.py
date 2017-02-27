@@ -7,20 +7,7 @@ import enum
 import numpy as np
 
 from darts import models
-
-
-class ShotResultEnum(enum.IntEnum):
-    Hit = 0
-    Miss = 1
-    BigMiss = 2
-
-
-class ShotTypeEnum(enum.Enum):
-    Treble = 'treble'
-    Double = 'double'
-    Single = 'single'
-    Bull = 'bull'
-    OuterBull = 'outer_bull'
+from darts.models import ShotResultEnum, ShotTypeEnum
 
 
 DEFAULT_SHOT_TYPE = ShotTypeEnum.Treble
