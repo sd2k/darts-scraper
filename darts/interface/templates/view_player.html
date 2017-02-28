@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+
+{% block title %}Player Stats for {{ player.name }} - Darts Simulator{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/css/datatables.min.css') }}">
+{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid">
+  <div class="header">
+    <h1>Player Stats <small>for {{ player.name }}</small></h1>
+  </div>
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
+    <!-- <li role="presentation"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Leg Details</a></li> -->
+    <li role="presentation"><a href="#plots" aria-controls="plots" role="tab" data-toggle="tab">Plots</a></li>
+    <li role="presentation"><a href="#match-results" aria-controls="match-results" role="tab" data-toggle="tab">Match Results</a></li>
+  </ul>
+
+
+  <div class="tab-content">
+
+    <!-- Summary tab -->
+    <div role="tabpanel" class="tab-pane active" id="summary">
+      <div class="row top-buffer">
+        <div class="col-md-4">
+          <h3>Player details</h3>
+          <dl>
+            <dt>Name</dt>
+            <dd>{{ player.name }}</dd>
+
+            <dt>PDC Ranking</dt>
+            <dd>{{ player.pdc_ranking }}</dd>
+
+            <dt>Red Dragon Ranking</dt>
+            <dd>{{ player.red_dragon_ranking }}</dd>
+
+            <dt>DDB Ranking</dt>
+            <dd>{{ player.ddb_ranking }}</dd>
+
+            <dt>Career earnings</dt>
+            <dd>{{ player.career_earnings }}</dd>
+
+            <dt>Career 9 darters</dt>
+            <dd>{{ player.career_9_darters }}</dd>
+          </dl>
+        </div>
+
+        <div class="col-md-4">
+          <h3>Checkout percentages</h3>
+          <dl>
+            <dt>Last match</dt>
+            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(1)) }}%</dd>
+
+            <dt>Last 5 matches</dt>
+            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(5)) }}%</dd>
+
+            <dt>Last 10 matches</dt>
+            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(10)) }}%</dd>
+
+            <dt>Last 20 matches</dt>
+            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(20)) }}%</dd>
+
+            <dt>All matches</dt>
+            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(10000)) }}%</dd>
+          </dl>
+        </div>
+        <div class="col-md-4">
+          <h3>Three Dart averages</h3>
+          <dl>
+            <dt>Last match</dt>
+            <dd>{{  '%0.2f' | format(player.three_dart_avg_last_n(1)) }}</dd>
+
+            <dt>Last 5 matches</dt>
+            <dd>{{  '%0.2f' | format(player.three_dart_avg_last_n(5)) }}</dd>
+
+            <dt>Last 10 matches</dt>
+            <dd>{{  '%0.2f' | format(player.three_dart_avg_last_n(10)) }}</dd>
+
+            <dt>Last 20 matches</dt>
+            <dd>{{  '%0.2f' | format(player.three_dart_avg_last_n(20)) }}</dd>
+
+            <dt>All matches</dt>
+            <dd>{{  '%0.2f' | format(player.three_dart_avg_last_n(10000)) }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plots tab -->
+    <div role="tabpanel" class="tab-pane" id="plots">
+      <div class="row">
+
+        <div class="col-md-6">
+          <h5 class="text-center">Checkout percent moving average (avg of 10 previous matches)</h5>
+          <div class="center-block">
+            <canvas id="checkout-percent-plot" height="500" width="800"></canvas>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h5 class="text-center">Three dart moving average (avg of 10 previous matches)</h5>
+          <div class="center-block">
+            <canvas id="three-dart-average-plot" height="500" width="800"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Exports tab -->
+    <div role="tabpanel" class="tab-pane" id="match-results">
+      <div class="top-buffer container">
+          <table id="match-results-table" class="table display nowrap" width="100%">
+            <thead>
+              <tr>
+                <th>vs.</th>
+                <th></th>
+                <th>Date</th>
+                <th>Score</th>
+                <th>Average</th>
+                <th>One Eighties</th>
+                <th>High Checkout</th>
+                <th>Checkout Percent</th>
+                <th>Checkout Chances</th>
+              </tr>
+            </thead>
+          </table>
+      </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block javascript %}
+
+<script type="text/javascript" src="{{ url_for('static', filename='vendor/js/Chart.min.js') }}"></script>
+
+<script type="text/javascript">
+  var checkoutPercentContext = $("#checkout-percent-plot");
+  var checkoutPercentData = {{ player.checkout_percent_moving_avg(100, 10)|tojson|safe }};
+  var checkoutPercentLabels = checkoutPercentData.reverse().map(function(x) {return x[0]});
+  var checkoutPercentData = checkoutPercentData.reverse().map(function(x) {return 100 * x[1]});
+
+  var checkoutPercentLinePlot = new Chart(checkoutPercentContext, {
+    type: 'line',
+    data: {
+      labels: checkoutPercentLabels,
+      datasets: [{
+        data: checkoutPercentData,
+        label: '',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      animation: false,
+      maintainAspectRatio: false,
+      responsive: false,
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            min: 0,
+            max: 100
+          }
+        }]
+      }
+    }
+  });
+
+
+  var threeDartAverageContext = $("#three-dart-average-plot");
+  var threeDartAverageData = {{ player.three_dart_moving_avg(100, 10)|tojson|safe }};
+  var threeDartAverageLabels = threeDartAverageData.reverse().map(function(x) {return x[0]});
+  var threeDartAverageData = threeDartAverageData.reverse().map(function(x) {return x[1]});
+
+  var threeDartAverageLinePlot = new Chart(threeDartAverageContext, {
+    type: 'line',
+    data: {
+      labels: threeDartAverageLabels,
+      datasets: [{
+        data: threeDartAverageData,
+        label: '',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      animation: false,
+      maintainAspectRatio: false,
+      responsive: false,
+      scales: {
+        yAxes: [{
+          ticks: {
+            min: Math.min.apply(Math, threeDartAverageData)-5,
+            max: Math.max.apply(Math, threeDartAverageData)+5,
+          }
+        }]
+      }
+    }
+  });
+</script>
+
+<script src="{{ url_for('static', filename='vendor/js/datatables.min.js') }}"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+  var data = {{ player.latest_results|tojson|safe }};
+  $('#match-results-table').DataTable({
+    buttons: ['csv'],
+    data: data,
+    deferRender: true,
+    dom: 'Blfrtip',
+    order: [2],
+    columnDefs: [
+      {
+        targets: [0],
+        data: null,
+        render: function(data, type, row) {
+          if (type === 'display' || type === 'filter') {
+            return '<a href="/players/' + row[0] + '/">' + row[1]
+          } else {
+            return row[0]
+          };
+        }
+      },
+      {
+        targets: [1],
+        visible: false
+      },
+      {
+        data: function(row, type, set, meta) {
+          return row[7] * 100;
+        },
+        targets: [7],
+        render: $.fn.dataTable.render.number(',', '.', 2, '', '%')
+      }
+    ],
+  });
+})
+
+</script>
+
+{% endblock %}

@@ -123,6 +123,7 @@ class Player(Base):
                 JOIN players p ON mr.player_id = p.id
                 WHERE p.id = :id
                     AND mr.checkout_percent IS NOT NULL
+                ORDER BY m.date
                 LIMIT :limit
             ) AS sub
         """
@@ -154,6 +155,75 @@ class Player(Base):
             .params(id=self.id, limit=n)
             .scalar()
         )
+
+    @property
+    def latest_results(self):
+        def results():
+            for result in self.match_results:
+                yield (
+                    result.vs_player.id,
+                    result.vs_player.name,
+                    result.match.date.isoformat(),
+                    result.score,
+                    result.average,
+                    result.oneeighties,
+                    result.high_checkout,
+                    result.checkout_percent,
+                    result.checkout_chances,
+                )
+        return list(results())
+
+    def checkout_percent_moving_avg(self, n, ma):
+        q = """
+            SELECT m.date,
+                AVG(checkout_percent) OVER
+                    (ORDER BY m.date
+                     ROWS BETWEEN :ma PRECEDING AND CURRENT ROW)
+                    AS checkout_percent
+            FROM match_results mr
+            JOIN matches m ON mr.match_id = m.id
+            JOIN players p ON mr.player_id = p.id
+            WHERE p.id = :id
+                AND mr.checkout_percent IS NOT NULL
+            ORDER BY m.date DESC
+            LIMIT :limit
+        """
+        results = (
+            inspect(self).session
+            .query('date', 'checkout_percent')
+            .from_statement(text(q))
+            .params(id=self.id, ma=ma-1, limit=n)
+        )
+        return [
+            (x[0].isoformat(), x[1])
+            for x in results
+        ]
+
+    def three_dart_moving_avg(self, n, ma):
+        q = """
+            SELECT m.date,
+                AVG(average) OVER
+                    (ORDER BY m.date
+                     ROWS BETWEEN :ma PRECEDING AND CURRENT ROW)
+                    AS average
+            FROM match_results mr
+            JOIN matches m ON mr.match_id = m.id
+            JOIN players p ON mr.player_id = p.id
+            WHERE p.id = :id
+                AND mr.average IS NOT NULL
+            ORDER BY m.date DESC
+            LIMIT :limit
+        """
+        results = (
+            inspect(self).session
+            .query('date', 'average')
+            .from_statement(text(q))
+            .params(id=self.id, ma=ma-1, limit=n)
+        )
+        return [
+            (x[0].isoformat(), x[1])
+            for x in results
+        ]
 
     def __repr__(self):
         return "<Player(id='%s', name='%s', pdc_ranking='%s')>" % (
@@ -229,16 +299,16 @@ class MatchResult(Base):
                 self.match.match_results
                 .filter(MatchResult.player_id != self.player_id)
                 .first()
-                .player.name
+                .player
             )
         except AttributeError:
-            vs_player = ''
+            vs_player = None
         return vs_player
 
     def __repr__(self):
         return "<MatchResult(player_id='%s', vs='%s', score='%s')>" % (
             self.player_id,
-            self.vs_player,
+            self.vs_player.name,
             self.score,
         )
 

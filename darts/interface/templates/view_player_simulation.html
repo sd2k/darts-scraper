@@ -13,89 +13,89 @@
     <h1>Simulation Details <small>for {{ simulation.profile.name }} Profile</small></h1>
   </div>
 
-    <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
-      <!-- <li role="presentation"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Leg Details</a></li> -->
-      <li role="presentation"><a href="#plots" aria-controls="plots" role="tab" data-toggle="tab">Plots</a></li>
-      <li role="presentation"><a href="#darts-data" aria-controls="darts-data" role="tab" data-toggle="tab">Darts Table</a></li>
-    </ul>
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
+    <!-- <li role="presentation"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Leg Details</a></li> -->
+    <li role="presentation"><a href="#plots" aria-controls="plots" role="tab" data-toggle="tab">Plots</a></li>
+    <li role="presentation"><a href="#darts-data" aria-controls="darts-data" role="tab" data-toggle="tab">Darts Table</a></li>
+  </ul>
 
-    <div class="tab-content">
+  <div class="tab-content">
 
-      <!-- Summary tab -->
-      <div role="tabpanel" class="tab-pane active" id="summary">
-        <div class="row top-buffer">
-          <div class="col-md-6">
-            <dl>
-              <dt>Profile name: </dt>
-              <dd>{{ simulation.profile.name }}</dd>
+    <!-- Summary tab -->
+    <div role="tabpanel" class="tab-pane active" id="summary">
+      <div class="row top-buffer">
+        <div class="col-md-6">
+          <dl>
+            <dt>Profile name: </dt>
+            <dd>{{ simulation.profile.name }}</dd>
 
-              <dt>Three dart average: </dt>
-              <dd>{{ simulation.three_dart_average }}</dd>
+            <dt>Three dart average: </dt>
+            <dd>{{ simulation.three_dart_average }}</dd>
 
-              <dt>Average 180s per leg: </dt>
-              <dd>{{ simulation.avg_180s }}</dd>
-            </dl>
-          </div>
+            <dt>Average 180s per leg: </dt>
+            <dd>{{ simulation.avg_180s }}</dd>
+          </dl>
+        </div>
 
-          <div class="col-md-6">
-            <dl>
-              <dt>Iterations: </dt>
-              <dd>{{ simulation.iterations }}</dd>
+        <div class="col-md-6">
+          <dl>
+            <dt>Iterations: </dt>
+            <dd>{{ simulation.iterations }}</dd>
 
-              <dt>Three dart avg standard deviation: </dt>
-              <dd>{{ simulation.three_dart_std_dev }}</dd>
+            <dt>Three dart avg standard deviation: </dt>
+            <dd>{{ simulation.three_dart_std_dev }}</dd>
 
-              <dt>Average 180s per leg standard deviation</dt>
-              <dd>{{ simulation.std_180s }}</dd>
-            </dl>
-          </div>
+            <dt>Average 180s per leg standard deviation</dt>
+            <dd>{{ simulation.std_180s }}</dd>
+          </dl>
         </div>
       </div>
-
-      <!-- Details tab -->
-      <!-- <div role="tabpanel" class="tab-pane" id="details"> -->
-      <!-- </div> -->
-
-      <!-- Plots tab -->
-      <div role="tabpanel" class="tab-pane" id="plots">
-        <div class="row">
-
-          <div class="col-md-4">
-            <h5 class="text-center">Distribution of Three Dart Averages <small>across all simulated legs</small></h5>
-            <div class="center-block">
-              <canvas id="three-dart-average-plot" height="500" width="500"></canvas>
-            </div>
-          </div>
-          <div class="col-md-8">
-            <h5 class="text-center">Distribution of Three Dart scores <small>across all simulated three-dart-throws (total: {{ simulation.three_dart_scores[0]|sum }})</small></h5>
-            <div class="center-block">
-              <canvas id="three-dart-scores-plot" height="500" width="1000"></canvas>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Exports tab -->
-      <div role="tabpanel" class="tab-pane" id="darts-data">
-        <div class="top-buffer container">
-            <table id="raw-table" class="table display nowrap" width="100%">
-              <thead>
-                <tr>
-                  <th>Leg #</th>
-                  <th>Starting score</th>
-                  <th>Dart Number</th>
-                  <th>Shot Type</th>
-                  <th>Result</th>
-                  <th>Points</th>
-                </tr>
-              </thead>
-            </table>
-        </div>
-      </div>
-
     </div>
+
+    <!-- Details tab -->
+    <!-- <div role="tabpanel" class="tab-pane" id="details"> -->
+    <!-- </div> -->
+
+    <!-- Plots tab -->
+    <div role="tabpanel" class="tab-pane" id="plots">
+      <div class="row">
+
+        <div class="col-md-4">
+          <h5 class="text-center">Distribution of Three Dart Averages <small>across all simulated legs</small></h5>
+          <div class="center-block">
+            <canvas id="three-dart-average-plot" height="500" width="500"></canvas>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <h5 class="text-center">Distribution of Three Dart scores <small>across all simulated three-dart-throws (total: {{ simulation.three_dart_scores[0]|sum }})</small></h5>
+          <div class="center-block">
+            <canvas id="three-dart-scores-plot" height="500" width="1000"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Exports tab -->
+    <div role="tabpanel" class="tab-pane" id="darts-data">
+      <div class="top-buffer container">
+          <table id="raw-table" class="table display nowrap" width="100%">
+            <thead>
+              <tr>
+                <th>Leg #</th>
+                <th>Starting score</th>
+                <th>Dart Number</th>
+                <th>Shot Type</th>
+                <th>Result</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+          </table>
+      </div>
+    </div>
+
+  </div>
 
 {% endblock %}
 
