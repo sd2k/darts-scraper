@@ -123,7 +123,7 @@ class Player(Base):
                 JOIN players p ON mr.player_id = p.id
                 WHERE p.id = :id
                     AND mr.checkout_percent IS NOT NULL
-                ORDER BY m.date
+                ORDER BY m.date DESC
                 LIMIT :limit
             ) AS sub
         """
@@ -145,6 +145,7 @@ class Player(Base):
                 JOIN players p ON mr.player_id = p.id
                 WHERE p.id = :id
                     AND mr.average IS NOT NULL
+                ORDER BY m.date DESC
                 LIMIT :limit
             ) AS sub
         """
