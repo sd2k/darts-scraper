@@ -162,8 +162,8 @@ class Player(Base):
         def results():
             for result in self.match_results:
                 yield (
-                    result.vs_player.id,
-                    result.vs_player.name or None,
+                    result.vs_player.id if result.vs_player else None,
+                    result.vs_player.name if result.vs_player else None,
                     result.match.date.isoformat(),
                     result.score or None,
                     result.average or None,
