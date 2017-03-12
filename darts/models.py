@@ -162,15 +162,15 @@ class Player(Base):
         def results():
             for result in self.match_results:
                 yield (
-                    result.vs_player.id,
-                    result.vs_player.name,
+                    result.vs_player.id if result.vs_player else None,
+                    result.vs_player.name if result.vs_player else None,
                     result.match.date.isoformat(),
-                    result.score,
-                    result.average,
-                    result.oneeighties,
-                    result.high_checkout,
-                    result.checkout_percent,
-                    result.checkout_chances,
+                    result.score or None,
+                    result.average or None,
+                    result.oneeighties or None,
+                    result.high_checkout or None,
+                    result.checkout_percent or None,
+                    result.checkout_chances or None,
                 )
         return list(results())
 
