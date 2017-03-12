@@ -48,7 +48,7 @@ def validate_doubles(form, field):
             form.double_miss_outside_pct.data
         )
         if total != 100:
-            raise ValidationError('Treble percentages must sum to 100%')
+            raise ValidationError('Double percentages must sum to 100%')
     except TypeError:
         pass
 
