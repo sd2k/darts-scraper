@@ -457,6 +457,7 @@ class PlayerSimulation(Base):
     profile_id = Column(Integer, ForeignKey('profiles.id'))
     iterations = Column(Integer, nullable=False, default=10000)
     results = Column(JSONB, nullable=False)
+    run_time = Column(DateTime, default=func.now())
 
     profile = relationship('Profile')
 
