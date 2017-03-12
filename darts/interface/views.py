@@ -64,12 +64,12 @@ def list_player_simulations():
             .filter(models.Profile.id == form_data['profile_id'])
             .one()
         )
-        lookups = sim.load_lookups(current_session)
+        lookups = sim.oneplayer.load_lookups(current_session)
         simulation = models.PlayerSimulation(
             profile=profile,
             iterations=form_data['iterations'],
         )
-        sim_results = sim.simulate_profile(
+        sim_results = sim.oneplayer.simulate_profile(
             profile,
             *lookups,
             iterations=form_data['iterations']
