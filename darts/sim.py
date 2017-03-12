@@ -136,6 +136,9 @@ def get_points(current_score, dart_number, result, score_points):
         (current_score, dart_number),
         DEFAULT_POINTS,
     )
+    if result == ShotResultEnum.BigMiss and point_tuple[result] == 6:
+        choices = [1, 3, 5, 15]
+        return random.choice(choices)
     return point_tuple[result]
 
 
