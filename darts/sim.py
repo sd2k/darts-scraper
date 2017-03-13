@@ -275,14 +275,14 @@ def throw_three_darts(current_score, profile, score_shot_types, score_points):
 
 class LegStats:
 
-    def __init__(self, *three_dart_stats):
+    def __init__(self, total, *three_dart_stats):
         self.three_dart_totals = [
             sum(x.points_scored) for x in three_dart_stats
         ]
-        self.three_dart_average = np.mean(self.three_dart_totals)
-        self.three_dart_sd = np.std(self.three_dart_totals)
         self.num_180s = self.three_dart_totals.count(180)
         self.all_darts = list(self.create_rows(*three_dart_stats))
+        n_darts = len([x for dart in self.all_darts for x in dart])
+        self.three_dart_average = 3.0 * float(total) / float(n_darts)
 
     def create_rows(self, *three_dart_stats):
         for darts in three_dart_stats:
@@ -293,7 +293,6 @@ class LegStats:
         return dict(
             three_dart_totals=self.three_dart_totals,
             three_dart_average=self.three_dart_average,
-            three_dart_sd=self.three_dart_sd,
             num_180s=self.num_180s,
             all_darts=[[
                 v.value if isinstance(v, enum.Enum) else v
@@ -331,7 +330,7 @@ def simulate_leg(profile, score_shot_types, score_points, total=501):
         )
         all_three_dart_stats.append(three_dart_stats)
 
-    return LegStats(*all_three_dart_stats)
+    return LegStats(total, *all_three_dart_stats)
 
 
 def simulate_profile(
