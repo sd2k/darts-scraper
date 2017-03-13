@@ -21,7 +21,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, deferred, relationship
 from sqlalchemy.sql import func
 
 from darts.db import Base
@@ -456,7 +456,7 @@ class PlayerSimulation(Base):
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profiles.id'))
     iterations = Column(Integer, nullable=False, default=10000)
-    results = Column(JSONB, nullable=False)
+    results = deferred(Column(JSONB, nullable=False))
     run_time = Column(DateTime, default=func.now())
 
     profile = relationship('Profile')
