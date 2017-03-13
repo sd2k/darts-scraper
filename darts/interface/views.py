@@ -46,6 +46,7 @@ def list_player_simulations():
         page=page,
         per_page=settings.SIMULATIONS_PER_PAGE,
         total=query.count(),
+        css_framework='bootstrap3',
         )
 
     form = PlayerSimulationForm()
