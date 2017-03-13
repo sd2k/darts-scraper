@@ -77,6 +77,8 @@ def list_player_simulations():
             leg.as_dict()
             for leg in sim_results
         ]
+        simulation.stats = simulation.create_stats(simulation.results)
+
         current_session.add(simulation)
         current_session.commit()
         return flask.redirect(
@@ -103,9 +105,6 @@ def view_player_simulation(id):
         'view_player_simulation.html',
         simulation=simulation,
     )
-
-
-
 
 
 

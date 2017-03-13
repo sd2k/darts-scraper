@@ -461,29 +461,44 @@ class PlayerSimulation(Base):
 
     profile = relationship('Profile')
 
+    stats = Column(JSONB, nullable=True)
+
+    def create_stats(self, results):
+        leg_averages = [leg['three_dart_average'] for leg in results]
+        leg_180s = [leg['num_180s'] for leg in results]
+        stats = dict(
+            leg_averages=leg_averages,
+            leg_180s=leg_180s,
+            three_dart_average=np.mean(leg_averages),
+            three_dart_std_dev=np.std(leg_averages),
+            avg_180s=np.mean(leg_180s),
+            std_180s=np.std(leg_180s),
+        )
+        return stats
+
     @cached_property
     def leg_averages(self):
-        return [leg['three_dart_average'] for leg in self.results]
+        return self.stats['leg_averages']
 
     @cached_property
     def leg_180s(self):
-        return [leg['num_180s'] for leg in self.results]
+        return self.stats['leg_180s']
 
     @cached_property
     def three_dart_average(self):
-        return np.mean(self.leg_averages)
+        return self.stats['three_dart_average']
 
     @cached_property
     def three_dart_std_dev(self):
-        return np.std(self.leg_averages)
+        return self.stats['three_dart_std_dev']
 
     @cached_property
     def avg_180s(self):
-        return np.mean(self.leg_180s)
+        return self.stats['avg_180s']
 
     @cached_property
     def std_180s(self):
-        return np.std(self.leg_180s)
+        return self.stats['std_180s']
 
     @cached_property
     def leg_darts(self):
