@@ -5,7 +5,6 @@ import logging
 import random
 
 import enum
-import numpy as np
 
 from darts import models
 from darts.models import ShotResultEnum, ShotTypeEnum
