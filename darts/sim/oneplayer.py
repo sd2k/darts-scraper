@@ -6,7 +6,6 @@ import random
 
 import enum
 
-from darts import models
 from darts.models import ShotResultEnum, ShotTypeEnum
 
 
@@ -18,31 +17,6 @@ DEFAULT_SHOT_TYPE = ShotTypeEnum.Treble
 
 DEFAULT_POINTS = (60, 20, 6)
 "Points tuple to use if score doesn't appear in lookup"
-
-
-def load_lookups(session):
-    """
-    Fetch the two required lookup tables from the database.
-
-    Returns a 2-tuple containing:
-
-    - a mapping from (score, dart ID) to shot type
-    - a mapping from (score, dart ID) to a three-tuple containing
-        (hit score, miss score, big miss score)
-    """
-    rows = session.query(models.ScoreLookup)
-    score_shot_types = {}
-    score_points = {}
-    for row in rows:
-        key = (row.score, row.dart)
-        score_shot_types[key] = ShotTypeEnum(row.shot_type)
-        score_points[key] = (
-            row.hit_points,
-            row.miss_points,
-            row.big_miss_points,
-        )
-
-    return score_shot_types, score_points
 
 
 def get_shot_type(current_score, dart_number, score_shot_types):
