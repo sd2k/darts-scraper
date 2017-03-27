@@ -549,7 +549,7 @@ class PlayerSimulation(Base):
         return list(darts())
 
     def __repr__(self):
-        return "<Simulation(profile_id='%s', iterations='%s')>" % (
+        return "<PlayerSimulation(profile_id='%s', iterations='%s')>" % (
             self.profile_id,
             self.iterations,
         )
@@ -558,4 +558,78 @@ class PlayerSimulation(Base):
         return "Simulation of profile {} ({} iterations)".format(
             self.profile.name,
             self.iterations,
+        )
+
+
+class MatchSimulation(Base):
+
+    __tablename__ = 'match_simulations'
+
+    id = Column(Integer, primary_key=True)
+    match_type = Column(Enum(
+        'match_play',
+        'set_play',
+        'premier_league',
+        name='match_types',
+    ), nullable=False)
+    profile_a_id = Column(Integer, ForeignKey('profiles.id'))
+    profile_b_id = Column(Integer, ForeignKey('profiles.id'))
+    a_first = Column(Boolean, nullable=False)
+    iterations = Column(Integer, nullable=False, default=1000)
+    a_handicap = Column(Integer, nullable=False, default=0)
+    b_handicap = Column(Integer, nullable=False, default=0)
+    results = deferred(Column(JSONB, nullable=False))
+    run_time = Column(DateTime, default=func.now())
+
+    stats = Column(JSONB, nullable=True)
+
+    def create_stats(self, results):
+        pass
+
+    profile_a = relationship(
+        'Profile',
+        primaryjoin='MatchSimulation.profile_a_id==Profile.id',
+    )
+    profile_b = relationship(
+        'Profile',
+        primaryjoin='MatchSimulation.profile_b_id==Profile.id',
+    )
+
+    @property
+    def match_type_pretty(self):
+        return dict(
+            match_play='Match Play',
+            set_play='Set Play',
+            premier_league='Premier League',
+        )[self.match_type]
+
+    @cached_property
+    def profile_a_win_percent(self):
+        profile_a_wins = [match['winner'] == 'a' for match in self.results]
+        return sum(profile_a_wins) / float(len(profile_a_wins))
+
+    @cached_property
+    def profile_b_win_percent(self):
+        profile_b_wins = [match['winner'] == 'b' for match in self.results]
+        return sum(profile_b_wins) / float(len(profile_b_wins))
+
+    def __repr__(self):
+        return (
+            "<MatchSimulation(match_type='%s', profile_a_id='%s', "
+            "profile_b_id='%s', iterations='%s')>" % (
+                self.match_type,
+                self.profile_a_id,
+                self.profile_b_id,
+                self.iterations,
+            )
+        )
+
+    def __str__(self):
+        return (
+            "Simulation of {} match between {} and {} ({} iterations)".format(
+                self.match_type,
+                self.profile_a.name,
+                self.profile_b.name,
+                self.iterations,
+            )
         )
