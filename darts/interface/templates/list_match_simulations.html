@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% from '_formhelpers.html' import render_field %}
+
+{% block title %}Match Simulations - Darts Simulator{% endblock %}
+
+{% block body %}
+
+<div class="container">
+
+  <button id="new-simulation-btn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#new-simulation-modal">New Simulation</button>
+
+  <div id="new-simulation-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4>Run a new simulation</h4>
+        </div>
+
+        <form class="form form-medium" action="." method="post">
+          {{ form.csrf_token }}
+          <div class="modal-body">
+            <dl>
+              {{ render_field(form.match_type) }}
+              {{ render_field(form.profile_a_id) }}
+              {{ render_field(form.profile_b_id) }}
+              {{ render_field(form.a_first) }}
+              {{ render_field(form.a_handicap) }}
+              {{ render_field(form.b_handicap) }}
+              {{ render_field(form.iterations) }}
+            </dl>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Run Simulation</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="row top-buffer">
+
+    {{ pagination.links }}
+
+    <table class="table table-striped table-hover">
+
+      <thead>
+        <tr>
+          <th>Profile 1</th>
+          <th>Profile 2</th>
+          <th>Run time</th>
+          <th>Iterations</th>
+          <th>Profile 1 win %</th>
+          <th>Profile 2 win %</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {% for sim in simulations %}
+        <tr>
+          <th>{{ '{} ({}{})'.format(sim.profile_a, sim.a_handicap, '*' if sim.a_first else '') }}</th>
+          <th>{{ '{} ({}{})'.format(sim.profile_b, sim.b_handicap, '' if sim.a_first else '*') }}</th>
+          <th>{{ sim.run_time or 'NA' }}</th>
+          <th>{{ sim.iterations }}</th>
+          <th>{{ 100 * sim.profile_a_win_percent ~ '%' }}</th>
+          <th>{{ 100 * sim.profile_b_win_percent ~ '%' }}</th>
+          <th><a href="{{ url_for('.view_match_simulation', id=sim.id) }}">View details</a></th>
+        </tr>
+      {% endfor %}
+      </tbody>
+
+    </table>
+
+    {{ pagination.links }}
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+{% if show_modal %}
+  <script type="text/javascript">
+    $(function() {
+      $('#new-simulation-modal').modal();
+    })
+  </script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ simulation.match_type_pretty }} simulation - {{ simulation.profile_a.name }} vs {{ simulation.profile_b.name }} - Darts Simulator{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/css/datatables.min.css') }}">
+{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid">
+  <div class="header">
+    <h1>Simulation Details <small>{{ simulation.match_type_pretty }} - {{ simulation.profile_a.name }} vs {{ simulation.profile_b.name }}</small></h1>
+  </div>
+
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
+    <!-- <li role="presentation"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Leg Details</a></li> -->
+    <!-- <li role="presentation"><a href="#plots" aria-controls="plots" role="tab" data-toggle="tab">Plots</a></li> -->
+    <!-- <li role="presentation"><a href="#darts-data" aria-controls="darts-data" role="tab" data-toggle="tab">Darts Table</a></li> -->
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- Summary tab -->
+    <div role="tabpanel" class="tab-pane active" id="summary">
+      <div class="row top-buffer">
+        <div class="col-md-6">
+          <dl>
+            <dt>Match Type: </dt>
+            <dd>{{ simulation.match_type_pretty }}</dd>
+
+            <dt>Player 1: </dt>
+            <dd>{{ simulation.profile_a.name }}</dd>
+
+            <dt>Player 2: </dt>
+            <dd>{{ simulation.profile_b.name }}</dd>
+
+            <dt>Run time: </dt>
+            <dd>{{ simulation.run_time or 'NA' }}</dd>
+          </dl>
+        </div>
+
+        <div class="col-md-6">
+          <dl>
+            <dt>Iterations: </dt>
+            <dd>{{ simulation.iterations }}</dd>
+
+            <dt>Profile 1 win %</dt>
+            <dd>{{ 100 * simulation.profile_a_win_percent }}%</dd>
+
+            <dt>Profile 2 win %</dt>
+            <dd>{{ 100 * simulation.profile_b_win_percent }}%</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details tab -->
+    <!-- Plots tab -->
+    <!-- Exports tab -->
+  </div>
+
+{% endblock %}
