@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import collections
+from collections import Counter
 import enum
 
 from cached_property import cached_property
@@ -517,7 +517,7 @@ class PlayerSimulation(Base):
 
     @cached_property
     def three_dart_scores(self):
-        counter = collections.Counter(
+        counter = Counter(
             sum(dart[2] for dart in three_darts)
             for leg in self.leg_darts
             for three_darts in leg
@@ -584,7 +584,21 @@ class MatchSimulation(Base):
     stats = Column(JSONB, nullable=True)
 
     def create_stats(self, results):
-        pass
+        profile_a_wins = [match['winner'] == 'a' for match in results]
+        profile_b_wins = [match['winner'] == 'b' for match in results]
+        score_counter = Counter(tuple(m['scores']) for m in results)
+        return dict(
+            profile_a_win_percent=(
+                sum(profile_a_wins) / float(len(profile_a_wins))
+            ),
+            profile_b_win_percent=(
+                sum(profile_b_wins) / float(len(profile_b_wins))
+            ),
+            score_probs={
+                '-'.join(str(x) for x in k): float(v) / len(results)
+                for k, v in score_counter.items()
+            },
+        )
 
     profile_a = relationship(
         'Profile',
@@ -605,13 +619,11 @@ class MatchSimulation(Base):
 
     @cached_property
     def profile_a_win_percent(self):
-        profile_a_wins = [match['winner'] == 'a' for match in self.results]
-        return sum(profile_a_wins) / float(len(profile_a_wins))
+        return self.stats['profile_a_win_percent']
 
     @cached_property
     def profile_b_win_percent(self):
-        profile_b_wins = [match['winner'] == 'b' for match in self.results]
-        return sum(profile_b_wins) / float(len(profile_b_wins))
+        return self.stats['profile_b_win_percent']
 
     def __repr__(self):
         return (

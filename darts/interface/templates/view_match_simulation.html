@@ -25,7 +25,7 @@
     <!-- Summary tab -->
     <div role="tabpanel" class="tab-pane active" id="summary">
       <div class="row top-buffer">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <dl>
             <dt>Match Type: </dt>
             <dd>{{ simulation.match_type_pretty }}</dd>
@@ -41,7 +41,7 @@
           </dl>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <dl>
             <dt>Iterations: </dt>
             <dd>{{ simulation.iterations }}</dd>
@@ -53,6 +53,26 @@
             <dd>{{ 100 * simulation.profile_b_win_percent }}%</dd>
           </dl>
         </div>
+
+        <div class="col-md-4">
+          <table id="scores-table" class="table display nowrap">
+            <thead>
+              <tr>
+                <th>Score</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for score in simulation.stats['score_probs'] | sort(reverse=True) %}
+              <tr>
+                <td>{{score}}</td>
+                <td>{{simulation.stats['score_probs'][score] * 100}}%</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -60,5 +80,20 @@
     <!-- Plots tab -->
     <!-- Exports tab -->
   </div>
+
+{% endblock %}
+
+{% block javascript %}
+
+<script src="{{ url_for('static', filename='vendor/js/datatables.min.js') }}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#scores-table').DataTable({
+    buttons: [],
+    dom: 't',
+    paging: false
+  });
+});
+</script>
 
 {% endblock %}

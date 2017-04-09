@@ -77,7 +77,8 @@ class MatchStats:
                 'a' if self.winner == self.profiles[0] else
                 'b' if self.winner == self.profiles[1] else
                 'draw'
-            )
+            ),
+            scores=self.scores,
             # all_legs=[leg.as_dict() for leg in self.all_legs],
         )
 
