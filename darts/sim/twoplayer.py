@@ -233,8 +233,11 @@ def simulate_match(match_type, iterations=1000, **kwargs):
 
     matches = []
 
+    a_first = kwargs.pop('a_first', True)
+
     for i in xrange(iterations):
-        match = match_fn(**kwargs)
+        match = match_fn(a_first=a_first, **kwargs)
+        a_first = not a_first
         matches.append(match)
         if i % 100 == 0 and i > 0:
             log.info('ran %s iterations' % i)
