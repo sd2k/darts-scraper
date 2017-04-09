@@ -17,6 +17,15 @@ class MatchSimulationForm(FlaskForm):
     profile_a_id = SelectField('Player 1 profile', coerce=int)
     profile_b_id = SelectField('Player 2 profile', coerce=int)
 
+    total_legs = IntegerField(
+        'Match Play only - number of legs per match',
+        default=None,
+    )
+    total_sets = IntegerField(
+        'Set play only - number of sets required to win match',
+        default=5,
+    )
+
     a_first = BooleanField('Player 1 throws first', default=True)
 
     iterations = IntegerField(

@@ -225,12 +225,15 @@ def simulate_match(match_type, iterations=1000, **kwargs):
 
     if match_type == 'match_play':
         match_fn = simulate_match_play
+        kwargs.pop('total_sets', None)
     elif match_type == 'set_play':
         match_fn = simulate_set_play
+        kwargs.pop('total_legs', None)
     elif match_type == 'premier_league':
         # Always 12 legs in a Premier League match.
         kwargs['total_legs'] = 12
         match_fn = simulate_match_play
+        kwargs.pop('total_sets', None)
 
     matches = []
 

@@ -147,8 +147,11 @@ def list_match_simulations():
             a_first=form_data['a_first'],
             a_handicap=form_data['a_handicap'] or 0,
             b_handicap=form_data['b_handicap'] or 0,
+            total_sets=form_data['total_sets'],
             total_legs=(
-                12 if form_data['match_type'] == 'premier_league' else None
+                12
+                if form_data['match_type'] == 'premier_league'
+                else form_data['total_legs']
             ),
         )
         simulation.results = [
