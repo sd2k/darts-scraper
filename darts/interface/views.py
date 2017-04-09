@@ -34,21 +34,7 @@ def index():
 @interface.route('/playersimulations/', methods=['GET', 'POST'])
 def list_player_simulations():
 
-    page = flask.request.args.get('page', type=int, default=1)
-
-    query = current_session.query(models.PlayerSimulation)
-
-    simulations = (
-        query.offset(settings.SIMULATIONS_PER_PAGE * (page - 1))
-        .limit(settings.SIMULATIONS_PER_PAGE)
-    )
-
-    pagination = Pagination(
-        page=page,
-        per_page=settings.SIMULATIONS_PER_PAGE,
-        total=query.count(),
-        css_framework='bootstrap3',
-    )
+    simulations = current_session.query(models.PlayerSimulation)
 
     form = PlayerSimulationForm()
 
@@ -90,7 +76,6 @@ def list_player_simulations():
     return flask.render_template(
         'list_player_simulations.html',
         form=form,
-        pagination=pagination,
         simulations=simulations,
         show_modal=flask.request.method == 'POST',
     ), 200 if flask.request.method == 'GET' else 400
@@ -112,21 +97,7 @@ def view_player_simulation(id):
 @interface.route('/matchsimulations/', methods=['GET', 'POST'])
 def list_match_simulations():
 
-    page = flask.request.args.get('page', type=int, default=1)
-
-    query = current_session.query(models.MatchSimulation)
-
-    simulations = (
-        query.offset(settings.SIMULATIONS_PER_PAGE * (page - 1))
-        .limit(settings.SIMULATIONS_PER_PAGE)
-    )
-
-    pagination = Pagination(
-        page=page,
-        per_page=settings.SIMULATIONS_PER_PAGE,
-        total=query.count(),
-        css_framework='bootstrap3',
-    )
+    simulations = current_session.query(models.MatchSimulation)
 
     form = MatchSimulationForm()
 
@@ -195,7 +166,6 @@ def list_match_simulations():
     return flask.render_template(
         'list_match_simulations.html',
         form=form,
-        pagination=pagination,
         simulations=simulations,
         show_modal=flask.request.method == 'POST',
     ), 200 if flask.request.method == 'GET' else 400

@@ -3,6 +3,10 @@
 
 {% block title %}Player Simulations - Darts Simulator{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/css/datatables.min.css') }}">
+{% endblock %}
+
 {% block body %}
 
 <div class="container">
@@ -39,9 +43,7 @@
 
   <div class="row top-buffer">
 
-    {{ pagination.links }}
-
-    <table class="table table-striped table-hover">
+    <table id="sims-table" class="table display nowrap">
 
       <thead>
         <tr>
@@ -69,8 +71,6 @@
 
     </table>
 
-    {{ pagination.links }}
-
   </div>
 
 </div>
@@ -78,11 +78,22 @@
 {% endblock %}
 
 {% block javascript %}
+
+<script src="{{ url_for('static', filename='vendor/js/datatables.min.js') }}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#sims-table').DataTable({
+    buttons: [],
+    dom: 'lfrtip'
+  });
+});
+</script>
+
 {% if show_modal %}
   <script type="text/javascript">
-    $(function() {
+    $(document).ready(function() {
       $('#new-simulation-modal').modal();
-    })
+    });
   </script>
 {% endif %}
 {% endblock %}
