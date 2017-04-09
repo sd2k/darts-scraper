@@ -59,12 +59,12 @@
       <tbody>
       {% for sim in simulations %}
         <tr>
-          <th>{{ sim.profile }}</th>
-          <th>{{ sim.run_time or 'NA' }}</th>
-          <th>{{ sim.iterations }}</th>
-          <th>{{ sim.three_dart_average | round(2) }} (Std Dev: {{ sim.three_dart_std_dev | round(2) }})</th>
-          <th>{{ sim.avg_180s | round(2) }} (Std Dev: {{ sim.std_180s | round(2) }})
-          <th><a href="{{ url_for('.view_player_simulation', id=sim.id) }}">View details</a></th>
+          <td>{{ sim.profile }}</td>
+          <td>{{ sim.run_time or 'NA' }}</td>
+          <td>{{ sim.iterations }}</td>
+          <td>{{ sim.three_dart_average | round(2) }} (Std Dev: {{ sim.three_dart_std_dev | round(2) }})</td>
+          <td>{{ sim.avg_180s | round(2) }} (Std Dev: {{ sim.std_180s | round(2) }})
+          <td><a href="{{ url_for('.view_player_simulation', id=sim.id) }}">View details</a></td>
         </tr>
       {% endfor %}
       </tbody>
