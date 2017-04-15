@@ -1,5 +1,6 @@
 from functools import partial
 import logging
+import math
 
 from . import oneplayer
 
@@ -100,6 +101,8 @@ def simulate_match_play(
 
     # List of (winner, LegStats - profile A, LegStats - profile B) tuples
     legs = []
+    if total_legs is not None:
+        legs_to_win = math.ceil(total_legs/2)
 
     a_wins, b_wins = 0, 0
 
