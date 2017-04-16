@@ -112,6 +112,7 @@ def simulate_match_play(
             profile_b,
             score_shot_types,
             score_points,
+            a_first,
         )
         log.debug('Leg winner: {}'.format(leg[0]))
         legs.append(leg)
