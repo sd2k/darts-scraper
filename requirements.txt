@@ -16,6 +16,8 @@ luigi~=2.6.0
 numpy~=1.12.0
 psycopg2~=2.6.2
 records~=0.5.0
+redis
+rq
 schedule~=0.4.2
 scrapy~=1.3.2
 slacker~=0.9.42
