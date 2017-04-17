@@ -106,8 +106,8 @@ for var, value in locals().copy().items():
         if os.environ.get(var):
             globals()[var] = os.environ[var]
 
-if 'postgresql' in DATABASE_URL and 'psycopg2cffi' not in DATABASE_URL:
+if 'postgres' in DATABASE_URL and 'psycopg2cffi' not in DATABASE_URL:
     DATABASE_URL = DATABASE_URL.replace(
-        'postgresql',
-        'postgresql+psycopg2cffi',
+        'postgres',
+        'postgres+psycopg2cffi',
     )
