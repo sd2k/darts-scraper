@@ -456,7 +456,7 @@ class PlayerSimulation(Base):
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profiles.id'))
     iterations = Column(Integer, nullable=False, default=10000)
-    results = deferred(Column(JSONB, nullable=False))
+    results = deferred(Column(JSONB, nullable=True))
     run_time = Column(DateTime, default=func.now())
 
     profile = relationship('Profile')
@@ -478,31 +478,31 @@ class PlayerSimulation(Base):
 
     @cached_property
     def leg_averages(self):
-        return self.stats['leg_averages']
+        return self.stats.get('leg_averages')
 
     @cached_property
     def leg_180s(self):
-        return self.stats['leg_180s']
+        return self.stats.get('leg_180s')
 
     @cached_property
     def three_dart_average(self):
-        return self.stats['three_dart_average']
+        return self.stats.get('three_dart_average')
 
     @cached_property
     def three_dart_std_dev(self):
-        return self.stats['three_dart_std_dev']
+        return self.stats.get('three_dart_std_dev')
 
     @cached_property
     def avg_180s(self):
-        return self.stats['avg_180s']
+        return self.stats.get('avg_180s')
 
     @cached_property
     def std_180s(self):
-        return self.stats['std_180s']
+        return self.stats.get('std_180s')
 
     @cached_property
     def leg_darts(self):
-        return [leg['all_darts'] for leg in self.results]
+        return [leg['all_darts'] for leg in (self.results or [])]
 
     @cached_property
     def three_dart_average_hist(self):
@@ -578,7 +578,7 @@ class MatchSimulation(Base):
     iterations = Column(Integer, nullable=False, default=1000)
     a_handicap = Column(Integer, nullable=False, default=0)
     b_handicap = Column(Integer, nullable=False, default=0)
-    results = deferred(Column(JSONB, nullable=False))
+    results = deferred(Column(JSONB, nullable=True))
     run_time = Column(DateTime, default=func.now())
 
     stats = Column(JSONB, nullable=True)
