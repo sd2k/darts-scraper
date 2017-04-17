@@ -33,7 +33,7 @@ class EventSpider(Spider):
             # ),
             scrapy.FormRequest(
                 'http://www.dartsdatabase.co.uk/EventList.aspx',
-                formdata={'year': '2016'},
+                formdata={'year': '2017'},
                 callback=self.parse_tournaments,
             ),
             # scrapy.FormRequest(
