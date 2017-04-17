@@ -1,6 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, IntegerField, SelectField
-from wtforms.validators import InputRequired, NumberRange, ValidationError
+from wtforms.validators import (
+    InputRequired,
+    NumberRange,
+    Optional,
+    ValidationError,
+)
 
 
 class MatchSimulationForm(FlaskForm):
@@ -20,6 +25,7 @@ class MatchSimulationForm(FlaskForm):
     total_legs = IntegerField(
         'Match Play only - number of legs per match',
         default=None,
+        validators=[Optional()],
     )
     total_sets = IntegerField(
         'Set play only - number of sets required to win match',
