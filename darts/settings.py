@@ -15,7 +15,7 @@ BOT_NAME = 'darts'
 SPIDER_MODULES = ['darts.scraper.spiders']
 NEWSPIDER_MODULE = 'darts.scraper.spiders'
 
-DATABASE_URL = 'postgresql://darts:darts@localhost/darts'
+DATABASE_URL = 'postgresql+psycopg2cffi://darts:darts@localhost/darts'
 REDISTOGO_URL = 'redis://localhost:6379'
 SECRET_KEY = '-8@a4n0{cK576B0oUH_M++Xo[]]pr8'
 
@@ -105,3 +105,9 @@ for var, value in locals().copy().items():
     if var.isupper():
         if os.environ.get(var):
             globals()[var] = os.environ[var]
+
+if 'postgresql' in DATABASE_URL and 'psycopg2cffi' not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace(
+        'postgresql',
+        'postgresql+psycopg2cffi',
+    )
