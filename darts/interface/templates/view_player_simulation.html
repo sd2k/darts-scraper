@@ -16,8 +16,16 @@
   <ul class="nav nav-tabs" role="tablist">
     <li role="presentation" class="active"><a href="#summary" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
     <!-- <li role="presentation"><a href="#details" aria-controls="details" role="tab" data-toggle="tab">Leg Details</a></li> -->
-    <li role="presentation"><a href="#plots" aria-controls="plots" role="tab" data-toggle="tab">Plots</a></li>
-    <li role="presentation"><a href="#darts-data" aria-controls="darts-data" role="tab" data-toggle="tab">Darts Table</a></li>
+    <li role="presentation" {% if not simulation.stats %}disabled class=".disabled"{% endif %}>
+      <a href="#plots" aria-controls="plots" role="tab" {% if simulation.stats %}data-toggle="tab"{% endif %}>
+        Plots
+      </a>
+    </li>
+    <li role="presentation" {% if not simulation.stats %}disabled{% endif %}>
+      <a href="#darts-data" aria-controls="darts-data" role="tab" {% if simulation.stats %}data-toggle="tab"{% endif %}>
+        Darts Table
+      </a>
+    </li>
   </ul>
 
   <div class="tab-content">
@@ -33,18 +41,20 @@
             <dt>Run time: </dt>
             <dd>{{ simulation.run_time or 'NA' }}</dd>
 
-            <dt>Three dart average: </dt>
-            <dd>{{ simulation.three_dart_average }}</dd>
-
-            <dt>Average 180s per leg: </dt>
-            <dd>{{ simulation.avg_180s }}</dd>
+            <dt>Iterations: </dt>
+            <dd>{{ simulation.iterations }}</dd>
           </dl>
         </div>
 
         <div class="col-md-6">
+
+        {% if simulation.stats %}
           <dl>
-            <dt>Iterations: </dt>
-            <dd>{{ simulation.iterations }}</dd>
+            <dt>Average 180s per leg: </dt>
+            <dd>{{ simulation.avg_180s }}</dd>
+
+            <dt>Three dart average: </dt>
+            <dd>{{ simulation.three_dart_average }}</dd>
 
             <dt>Three dart avg standard deviation: </dt>
             <dd>{{ simulation.three_dart_std_dev }}</dd>
@@ -52,6 +62,10 @@
             <dt>Average 180s per leg standard deviation</dt>
             <dd>{{ simulation.std_180s }}</dd>
           </dl>
+        {% else %}
+          <p>Simulation still running; come back soon for results!</p>
+          <p>This page will auto-refresh every 5 seconds until results are ready.</p>
+        {% endif %}
         </div>
       </div>
     </div>
@@ -61,6 +75,7 @@
     <!-- </div> -->
 
     <!-- Plots tab -->
+    {% if simulation.stats %}
     <div role="tabpanel" class="tab-pane" id="plots">
       <div class="row">
 
@@ -79,8 +94,10 @@
 
       </div>
     </div>
+    {% endif %}
 
     <!-- Exports tab -->
+    {% if simulation.stats %}
     <div role="tabpanel" class="tab-pane" id="darts-data">
       <div class="top-buffer container">
           <table id="raw-table" class="table display nowrap" width="100%">
@@ -97,12 +114,15 @@
           </table>
       </div>
     </div>
+    {% endif %}
 
   </div>
 
 {% endblock %}
 
+
 {% block javascript %}
+{% if simulation.stats %}
 <script type="text/javascript" src="{{ url_for('static', filename='vendor/js/Chart.min.js') }}"></script>
 
 <script type="text/javascript">
@@ -189,5 +209,14 @@ $(document).ready(function() {
   });
 })
 </script>
+
+{% else %}
+
+<script type="text/javascript">
+// reload after 5 seconds
+setTimeout(function() { location.reload() }, 5 * 1000);
+</script>
+
+{% endif %}
 
 {% endblock %}

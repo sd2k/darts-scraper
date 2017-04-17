@@ -71,8 +71,13 @@
           <td>{{ '{} ({}{})'.format(sim.profile_b, sim.b_handicap, '' if sim.a_first else '*') }}</td>
           <td>{{ sim.run_time or 'NA' }}</td>
           <td>{{ sim.iterations }}</td>
+          {% if sim.stats %}
           <td>{{ 100 * sim.profile_a_win_percent ~ '%' }}</td>
           <td>{{ 100 * sim.profile_b_win_percent ~ '%' }}</td>
+          {% else %}
+          <td>Not yet calculated</td>
+          <td>Not yet calculated</td>
+          {% endif %}
           <td><a href="{{ url_for('.view_match_simulation', id=sim.id) }}">View details</a></td>
         </tr>
       {% endfor %}
