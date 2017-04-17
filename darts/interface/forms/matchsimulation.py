@@ -37,7 +37,7 @@ class MatchSimulationForm(FlaskForm):
     iterations = IntegerField(
         'Iterations',
         default=1000,
-        validators=[NumberRange(100, 5000), InputRequired()],
+        validators=[NumberRange(100, 50000), InputRequired()],
     )
 
     a_handicap = IntegerField(
