@@ -2,13 +2,19 @@ import flask
 import flask.views
 from flask_paginate import Pagination
 from flask_sqlalchemy_session import current_session
+import rq
 
-from darts import models, settings, sim
+from darts import jobs, models, settings, sim, worker
 from .extensions import nav
 from .forms import MatchSimulationForm, ProfileForm, PlayerSimulationForm
 
 
 interface = flask.Blueprint('interface', __name__)
+
+
+@interface.before_request
+def before_request():
+    flask.g.q = rq.Queue(connection=worker.conn)
 
 
 @interface.before_request
@@ -56,19 +62,21 @@ def list_player_simulations():
             profile=profile,
             iterations=form_data['iterations'],
         )
-        sim_results = sim.oneplayer.simulate_profile(
-            profile,
-            *lookups,
-            iterations=form_data['iterations']
-        )
-        simulation.results = [
-            leg.as_dict()
-            for leg in sim_results
-        ]
-        simulation.stats = simulation.create_stats(simulation.results)
 
         current_session.add(simulation)
         current_session.commit()
+
+        flask.g.q.enqueue_call(
+            jobs.run_one_player_sim,
+            kwargs=dict(
+                sim_id=simulation.id,
+                profile=profile,
+                score_shot_types=lookups[0],
+                score_points=lookups[1],
+                iterations=form_data['iterations']
+            ),
+        )
+
         return flask.redirect(
             flask.url_for('.view_player_simulation', id=simulation.id)
         )
@@ -91,6 +99,7 @@ def view_player_simulation(id):
     return flask.render_template(
         'view_player_simulation.html',
         simulation=simulation,
+        completed=simulation.results is None,
     )
 
 
@@ -137,31 +146,32 @@ def list_match_simulations():
             a_handicap=form_data['a_handicap'] or 0,
             b_handicap=form_data['b_handicap'] or 0,
         )
-        sim_results = sim.twoplayer.simulate_match(
-            match_type,
-            profile_a=profile_a,
-            profile_b=profile_b,
-            score_shot_types=lookups[0],
-            score_points=lookups[1],
-            iterations=form_data['iterations'],
-            a_first=form_data['a_first'],
-            a_handicap=form_data['a_handicap'] or 0,
-            b_handicap=form_data['b_handicap'] or 0,
-            total_sets=form_data['total_sets'],
-            total_legs=(
-                12
-                if form_data['match_type'] == 'premier_league'
-                else form_data['total_legs']
-            ),
-        )
-        simulation.results = [
-            match.as_dict()
-            for match in sim_results
-        ]
-        simulation.stats = simulation.create_stats(simulation.results)
-
         current_session.add(simulation)
         current_session.commit()
+
+        flask.g.q.enqueue_call(
+            jobs.run_two_player_sim,
+            kwargs=dict(
+                sim_id=simulation.id,
+                match_type=match_type,
+                profile_a=profile_a,
+                profile_b=profile_b,
+                score_shot_types=lookups[0],
+                score_points=lookups[1],
+                iterations=form_data['iterations'],
+                a_first=form_data['a_first'],
+                a_handicap=form_data['a_handicap'] or 0,
+                b_handicap=form_data['b_handicap'] or 0,
+                total_sets=form_data['total_sets'],
+                total_legs=(
+                    12
+                    if form_data['match_type'] == 'premier_league'
+                    else form_data['total_legs']
+                ),
+            ),
+            timeout=settings.JOB_TIMEOUT,
+        )
+
         return flask.redirect(
             flask.url_for('.view_match_simulation', id=simulation.id)
         )
@@ -184,6 +194,7 @@ def view_match_simulation(id):
     return flask.render_template(
         'view_match_simulation.html',
         simulation=simulation,
+        completed=simulation.results is None,
     )
 
 

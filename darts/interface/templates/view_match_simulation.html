@@ -38,14 +38,15 @@
 
             <dt>Run time: </dt>
             <dd>{{ simulation.run_time or 'NA' }}</dd>
+
+            <dt>Iterations: </dt>
+            <dd>{{ simulation.iterations }}</dd>
           </dl>
         </div>
 
+        {% if simulation.stats %}
         <div class="col-md-4">
           <dl>
-            <dt>Iterations: </dt>
-            <dd>{{ simulation.iterations }}</dd>
-
             <dt>Profile 1 win %</dt>
             <dd>{{ 100 * simulation.profile_a_win_percent }}%</dd>
 
@@ -73,6 +74,12 @@
             </tbody>
           </table>
         </div>
+        {% else %}
+        <div class="col-md-8">
+          <p>Simulation still running; check back soon for results!</p>
+          <p>This page will auto-refresh every 5 seconds until results are ready.</p>
+        </div>
+        {% endif %}
       </div>
     </div>
 
@@ -84,6 +91,7 @@
 {% endblock %}
 
 {% block javascript %}
+{% if simulation.results %}
 
 <script src="{{ url_for('static', filename='vendor/js/datatables.min.js') }}"></script>
 <script type="text/javascript">
@@ -95,5 +103,14 @@ $(document).ready(function() {
   });
 });
 </script>
+
+{% else %}
+
+<script type="text/javascript">
+// reload after 5 seconds
+setTimeout(function() { location.reload() }, 5 * 1000);
+</script>
+
+{% endif %}
 
 {% endblock %}
