@@ -469,10 +469,10 @@ class PlayerSimulation(Base):
         stats = dict(
             leg_averages=leg_averages,
             leg_180s=leg_180s,
-            three_dart_average=np.mean(leg_averages),
-            three_dart_std_dev=np.std(leg_averages),
-            avg_180s=np.mean(leg_180s),
-            std_180s=np.std(leg_180s),
+            three_dart_average=float(np.mean(leg_averages)),
+            three_dart_std_dev=float(np.std(leg_averages)),
+            avg_180s=float(np.mean(leg_180s)),
+            std_180s=float(np.std(leg_180s)),
         )
         return stats
 
