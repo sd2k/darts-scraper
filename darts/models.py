@@ -506,7 +506,7 @@ class PlayerSimulation(Base):
 
     @cached_property
     def three_dart_average_hist(self):
-        hist = np.histogram(self.leg_averages, bins='auto')
+        hist = np.histogram(self.leg_averages, bins=20)
         ticks = [
             str(round(edge, 1)) for edge in hist[1]
         ]
