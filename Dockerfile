@@ -10,4 +10,5 @@ RUN pip install -r requirements.txt
 COPY . /app/
 RUN pip install .
 
+EXPOSE 5000
 CMD [ "gunicorn", "-c", "darts/gunicorn_config.py", "darts.wsgi:app" ]
