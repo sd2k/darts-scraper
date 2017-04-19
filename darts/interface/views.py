@@ -122,10 +122,6 @@ def list_match_simulations():
     if form.validate_on_submit():
         form_data = form.data.copy()
         form_data.pop('csrf_token', None)
-        match_type = (
-            'set_play' if form_data['match_type'] == 'set_play'
-            else 'match_play'
-        )
         profile_a = (
             current_session.query(models.Profile)
             .filter(models.Profile.id == form_data['profile_a_id'])
@@ -138,7 +134,7 @@ def list_match_simulations():
         )
         lookups = sim.load_lookups(current_session)
         simulation = models.MatchSimulation(
-            match_type=match_type,
+            match_type=form_data['match_type'],
             profile_a=profile_a,
             profile_b=profile_b,
             iterations=form_data['iterations'],
@@ -153,7 +149,7 @@ def list_match_simulations():
             jobs.run_two_player_sim,
             kwargs=dict(
                 sim_id=simulation.id,
-                match_type=match_type,
+                match_type=form_data['match_type'],
                 profile_a=profile_a,
                 profile_b=profile_b,
                 score_shot_types=lookups[0],

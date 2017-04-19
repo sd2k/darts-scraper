@@ -94,6 +94,7 @@ def simulate_match_play(
         a_handicap=0,
         b_handicap=0,
         total_legs=None,
+        premier_league=False,
         ):
     """
     Note - if total_legs = 12, this is 'Premier League' play.
@@ -103,6 +104,8 @@ def simulate_match_play(
     legs = []
     if total_legs is not None:
         legs_to_win = math.ceil(total_legs/2.0)
+    if premier_league:
+        legs_to_win = 7
 
     a_wins, b_wins = 0, 0
 
@@ -236,6 +239,7 @@ def simulate_match(match_type, iterations=1000, **kwargs):
     elif match_type == 'premier_league':
         # Always 12 legs in a Premier League match.
         kwargs['total_legs'] = 12
+        kwargs['premier_league'] = True
         match_fn = simulate_match_play
         kwargs.pop('total_sets', None)
 
