@@ -107,7 +107,6 @@ for var, value in locals().copy().items():
             globals()[var] = os.environ[var]
 
 if 'postgres' in DATABASE_URL and 'psycopg2cffi' not in DATABASE_URL:
-    DATABASE_URL = DATABASE_URL.replace(
-        'postgres',
-        'postgres+psycopg2cffi',
+    DATABASE_URL = 'postgres+psycopg2cffi{}'.format(
+        DATABASE_URL.lstrip('postgres')
     )
