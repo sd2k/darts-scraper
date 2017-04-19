@@ -17,6 +17,7 @@ def run_one_player_sim(
         profile,
         score_shot_types,
         score_points,
+        **kwargs,
         )
 
     simulation = (
