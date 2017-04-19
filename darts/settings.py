@@ -17,6 +17,7 @@ NEWSPIDER_MODULE = 'darts.scraper.spiders'
 
 DATABASE_URL = 'postgresql+psycopg2cffi://darts:darts@localhost/darts'
 REDIS_URL = 'redis://localhost:6379'
+REDISTOGO_URL = None
 SECRET_KEY = '-8@a4n0{cK576B0oUH_M++Xo[]]pr8'
 
 SIMULATIONS_PER_PAGE = 20

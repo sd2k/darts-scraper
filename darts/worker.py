@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 
 listen = ['default']
 
-conn = redis.from_url(settings.REDIS_URL)
+conn = redis.from_url(settings.REDISTOGO_URL or settings.REDIS_URL)
 
 
 if __name__ == '__main__':
