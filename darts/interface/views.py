@@ -40,14 +40,16 @@ def index():
 @interface.route('/playersimulations/', methods=['GET', 'POST'])
 def list_player_simulations():
 
-    simulations = current_session.query(models.PlayerSimulation)
+    simulations = (
+        current_session.query(models.PlayerSimulation)
+        .order_by(models.PlayerSimulation.run_time.desc())
+    )
+
+    load_all = flask.request.args.get('all', False)
+    if not load_all:
+        simulations = simulations.limit(50)
 
     form = PlayerSimulationForm()
-
-    form.profile_id.choices = [
-        (profile.id, str(profile))
-        for profile in current_session.query(models.Profile)
-    ]
 
     if form.validate_on_submit():
         form_data = form.data.copy()
@@ -81,6 +83,11 @@ def list_player_simulations():
             flask.url_for('.view_player_simulation', id=simulation.id)
         )
 
+    form.profile_id.choices = [
+        (profile.id, str(profile))
+        for profile in current_session.query(models.Profile)
+    ]
+
     return flask.render_template(
         'list_player_simulations.html',
         form=form,
@@ -106,18 +113,16 @@ def view_player_simulation(id):
 @interface.route('/matchsimulations/', methods=['GET', 'POST'])
 def list_match_simulations():
 
-    simulations = current_session.query(models.MatchSimulation)
+    simulations = (
+        current_session.query(models.MatchSimulation)
+        .order_by(models.MatchSimulation.run_time.desc())
+    )
+
+    load_all = flask.request.args.get('all', False)
+    if not load_all:
+        simulations = simulations.limit(50)
 
     form = MatchSimulationForm()
-
-    form.profile_a_id.choices = [
-        (profile.id, str(profile))
-        for profile in current_session.query(models.Profile)
-    ]
-    form.profile_b_id.choices = [
-        (profile.id, str(profile))
-        for profile in current_session.query(models.Profile)
-    ]
 
     if form.validate_on_submit():
         form_data = form.data.copy()
@@ -171,6 +176,15 @@ def list_match_simulations():
         return flask.redirect(
             flask.url_for('.view_match_simulation', id=simulation.id)
         )
+
+    form.profile_a_id.choices = [
+        (profile.id, str(profile))
+        for profile in current_session.query(models.Profile)
+    ]
+    form.profile_b_id.choices = [
+        (profile.id, str(profile))
+        for profile in current_session.query(models.Profile)
+    ]
 
     return flask.render_template(
         'list_match_simulations.html',
