@@ -82,3 +82,6 @@ dist: clean
 
 install: clean
 	python setup.py install
+
+start:
+	honcho start web_dev worker
