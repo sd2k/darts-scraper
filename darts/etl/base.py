@@ -16,7 +16,7 @@ def NotImplementedProperty():
     raise NotImplementedError
 
 
-class Psycopg2cffiPostgresTarget(luigi.postgres.Target):
+class Psycopg2cffiPostgresTarget(luigi.postgres.PostgresTarget):
 
     def connect(self):
         connection = psycopg2cffi.connect(
