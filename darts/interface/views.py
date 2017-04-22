@@ -51,6 +51,11 @@ def list_player_simulations():
 
     form = PlayerSimulationForm()
 
+    form.profile_id.choices = [
+        (profile.id, str(profile))
+        for profile in current_session.query(models.Profile)
+    ]
+
     if form.validate_on_submit():
         form_data = form.data.copy()
         form_data.pop('csrf_token', None)
@@ -82,11 +87,6 @@ def list_player_simulations():
         return flask.redirect(
             flask.url_for('.view_player_simulation', id=simulation.id)
         )
-
-    form.profile_id.choices = [
-        (profile.id, str(profile))
-        for profile in current_session.query(models.Profile)
-    ]
 
     return flask.render_template(
         'list_player_simulations.html',
@@ -123,6 +123,15 @@ def list_match_simulations():
         simulations = simulations.limit(50)
 
     form = MatchSimulationForm()
+
+    form.profile_a_id.choices = [
+        (profile.id, str(profile))
+        for profile in current_session.query(models.Profile)
+    ]
+    form.profile_b_id.choices = [
+        (profile.id, str(profile))
+        for profile in current_session.query(models.Profile)
+    ]
 
     if form.validate_on_submit():
         form_data = form.data.copy()
@@ -176,15 +185,6 @@ def list_match_simulations():
         return flask.redirect(
             flask.url_for('.view_match_simulation', id=simulation.id)
         )
-
-    form.profile_a_id.choices = [
-        (profile.id, str(profile))
-        for profile in current_session.query(models.Profile)
-    ]
-    form.profile_b_id.choices = [
-        (profile.id, str(profile))
-        for profile in current_session.query(models.Profile)
-    ]
 
     return flask.render_template(
         'list_match_simulations.html',
