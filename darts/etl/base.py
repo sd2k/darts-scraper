@@ -3,6 +3,7 @@ import textwrap
 
 import luigi
 import luigi.postgres
+import psycopg2cffi
 import scrapy.crawler
 import scrapy.settings
 
@@ -13,6 +14,20 @@ from . import mixins, targets, utils
 @property
 def NotImplementedProperty():
     raise NotImplementedError
+
+
+class Psycopg2cffiPostgresTarget(luigi.postgres.Target):
+
+    def connect(self):
+        connection = psycopg2cffi.connect(
+            host=self.host,
+            port=self.port,
+            database=self.database,
+            user=self.user,
+            password=self.password,
+        )
+        connection.set_client_encoding('utf-8')
+        return connection
 
 
 class TaskBase(luigi.Task):
@@ -48,7 +63,7 @@ class ScrapySpiderBase(
     'Settings to be passed to the crawler'
 
     def output(self):
-        return luigi.postgres.PostgresTarget(
+        return Psycopg2cffiPostgresTarget(
             update_id=self.task_id,
             table=None,
             **utils.parse_pg_url(settings.DATABASE_URL)
