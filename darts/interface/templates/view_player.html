@@ -53,19 +53,19 @@
           <h3>Checkout percentages</h3>
           <dl>
             <dt>Last match</dt>
-            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(1)) }}%</dd>
+            <dd>{{ '%0.2f' | format(100 * (player.checkout_percent_last_n(1) or 0)) }}%</dd>
 
             <dt>Last 5 matches</dt>
-            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(5)) }}%</dd>
+            <dd>{{ '%0.2f' | format(100 * (player.checkout_percent_last_n(5) or 0)) }}%</dd>
 
             <dt>Last 10 matches</dt>
-            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(10)) }}%</dd>
+            <dd>{{ '%0.2f' | format(100 * (player.checkout_percent_last_n(10) or 0)) }}%</dd>
 
             <dt>Last 20 matches</dt>
-            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(20)) }}%</dd>
+            <dd>{{ '%0.2f' | format(100 * (player.checkout_percent_last_n(20) or 0)) }}%</dd>
 
             <dt>All matches</dt>
-            <dd>{{ '%0.2f' | format(100 * player.checkout_percent_last_n(10000)) }}%</dd>
+            <dd>{{ '%0.2f' | format(100 * (player.checkout_percent_last_n(10000) or 0)) }}%</dd>
           </dl>
         </div>
         <div class="col-md-4">
