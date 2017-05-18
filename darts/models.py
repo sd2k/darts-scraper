@@ -51,7 +51,7 @@ def generate_name(context):
     return '{} {}'.format(
         context.current_parameters['year'],
         context.connection.execute(
-            'SELECT name FROM tournament WHERE id = %s',
+            'SELECT name FROM tournaments WHERE id = %s',
             int(context.current_parameters['tournament_id'])
         ).scalar() or 'Unknown Tournament'
     )
@@ -307,9 +307,10 @@ class MatchResult(Base):
         return vs_player
 
     def __repr__(self):
+        vs_player_name = self.vs_player.name if self.vs_player else ''
         return "<MatchResult(player_id='%s', vs='%s', score='%s')>" % (
             self.player_id,
-            self.vs_player.name,
+            vs_player_name,
             self.score,
         )
 
