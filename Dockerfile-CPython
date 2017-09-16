@@ -1,0 +1,13 @@
+FROM python:2.7
+
+WORKDIR /app/
+
+COPY requirements-dev.txt requirements-dev.txt
+RUN pip install -r requirements-dev.txt
+COPY requirements-cpython.txt requirements-cpython.txt
+RUN pip install -r requirements-cpython.txt
+
+COPY . /app/
+RUN pip install .
+
+CMD [ "python", "-m", "luigi", "--local-scheduler", "--module", "darts.etl.tasks.scrapers", "PlayerScraper" ]
