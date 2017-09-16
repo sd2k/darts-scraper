@@ -31,6 +31,8 @@ def run_event_scraper():
 def main():
     schedule.every(2).minutes.do(run_player_scraper)
     schedule.every(2).minutes.do(run_event_scraper)
+    run_player_scraper()
+    run_event_scraper()
     while True:
         schedule.run_pending()
         time.sleep(1)
