@@ -3,7 +3,10 @@ import textwrap
 
 import luigi
 import luigi.postgres
-import psycopg2cffi
+try:
+    import psycopg2cffi as psycopg2
+except ImportError:
+    import psycopg2
 import scrapy.crawler
 import scrapy.settings
 
@@ -19,7 +22,7 @@ def NotImplementedProperty():
 class Psycopg2cffiPostgresTarget(luigi.postgres.PostgresTarget):
 
     def connect(self):
-        connection = psycopg2cffi.connect(
+        connection = psycopg2.connect(
             host=self.host,
             port=self.port,
             database=self.database,

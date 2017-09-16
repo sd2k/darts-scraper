@@ -28,6 +28,8 @@ JOB_TIMEOUT = 3000
 SLACK_API_TOKEN = None
 SLACK_BOT_NAME = 'dartsbot'
 
+SCRAPING = False
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'darts (+http://www.yourdomain.com)'
 
@@ -104,10 +106,17 @@ from os import pardir
 from os.path import join, dirname
 from dotenv import load_dotenv
 
+import yaml
+
 # Load environment variables from the .env file
 dotenv_path = join(dirname(__file__), pardir, '.env')
 load_dotenv(dotenv_path)
 
+# Load custom settings from the YAML file specified by APP_SETTINGS_YAML
+custom_settings_filepath = os.environ.get('APP_SETTINGS_YAML')
+if custom_settings_filepath is not None:
+    with open(custom_settings_filepath) as infile:
+        globals().update(yaml.safe_load(infile))
 
 # Load any settings from environment variables
 for var, value in locals().copy().items():
@@ -115,7 +124,8 @@ for var, value in locals().copy().items():
         if os.environ.get(var):
             globals()[var] = os.environ[var]
 
-if 'postgres' in DATABASE_URL and 'psycopg2cffi' not in DATABASE_URL:
+if not SCRAPING and (
+    'postgres' in DATABASE_URL and 'psycopg2cffi' not in DATABASE_URL):
     DATABASE_URL = 'postgres+psycopg2cffi{}'.format(
         DATABASE_URL.lstrip('postgres')
     )
