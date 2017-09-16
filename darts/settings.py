@@ -100,6 +100,14 @@ ITEM_PIPELINES = {
 # =========================================================================== #
 
 import os
+from os import pardir
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+dotenv_path = join(dirname(__file__), pardir, '.env')
+load_dotenv(dotenv_path)
+
 
 # Load any settings from environment variables
 for var, value in locals().copy().items():
