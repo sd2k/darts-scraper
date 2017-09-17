@@ -48,9 +48,7 @@ class TaskBase(luigi.Task):
         self._logger = logger
 
 
-class ScrapySpiderBase(
-        TaskBase,
-        ):
+class ScrapySpiderBase(TaskBase):
 
     """
     Base class for classes running a Scrapy spider.
@@ -61,6 +59,10 @@ class ScrapySpiderBase(
 
     spider = NotImplementedProperty
     'Spider to run'
+
+    spider_args = []
+
+    spider_kwargs = {}
 
     crawler_settings = dict()
     'Settings to be passed to the crawler'
@@ -84,7 +86,7 @@ class ScrapySpiderBase(
                 }
             )
         )
-        process.crawl(self.spider)
+        process.crawl(self.spider, *self.spider_args, **self.spider_kwargs)
         process.start()
 
         self.output().touch()

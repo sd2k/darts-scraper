@@ -27,25 +27,11 @@ class EventSpider(Spider):
 
     def start_requests(self):
         return [
-            # scrapy.Request(
-            #     'http://www.dartsdatabase.co.uk/FixtureList.aspx?EventKey=7460',  # noqa
-            #     callback=self.parse_event
-            # ),
             scrapy.FormRequest(
                 'http://www.dartsdatabase.co.uk/EventList.aspx',
-                formdata={'year': '2017'},
+                formdata={'year': self.year},
                 callback=self.parse_tournaments,
             ),
-            # scrapy.FormRequest(
-            #     'http://www.dartsdatabase.co.uk/EventList.aspx',
-            #     formdata={'year': '2015'},
-            #     callback=self.parse_tournaments,
-            # ),
-            # scrapy.FormRequest(
-            #     'http://www.dartsdatabase.co.uk/EventList.aspx',
-            #     formdata={'year': '2014'},
-            #     callback=self.parse_tournaments,
-            # ),
         ]
 
     tournament_row_xpath = 'body/form/table/tr/td/center/table/tr'
